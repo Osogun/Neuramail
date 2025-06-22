@@ -20,7 +20,7 @@ const FetchButton = () => {
         setMail(data);
         setError(null);
       }
-    } catch (error) {
+    } catch {
       setError("Błąd: brak połączenia z serwerem");
       setMail(null);
     }
