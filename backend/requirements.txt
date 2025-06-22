@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+imapclient
+pyzmail36
