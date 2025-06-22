@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import FetchButton from './Test.jsx'
 import TestComponent from './TestComponent.jsx'
+import EmailDisplay from './EmailDisplay.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -12,6 +13,13 @@ function App() {
     <>
     <FetchButton />
     <TestComponent />
+    <EmailDisplay
+      from="john@example.com"
+      to="jane@example.com"
+      subject="Przykładowy email"
+      date="2024-01-01"
+      body="To jest przykładowa treść wiadomości."
+    />
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
