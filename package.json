@@ -3,8 +3,7 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "npm run build --prefix frontend -- --emptyOutDir && pyinstaller --onefile --name main backend/main.py"
+    "start": "electron ."
   },
   "devDependencies": {
     "electron": "^29.0.0"
