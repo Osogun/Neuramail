@@ -1,9 +1,19 @@
 import imapclient
 import pyzmail
+import json
+from pathlib import Path
 
-host = "imap.gmail.com"  # lub inny serwer IMAP
-email = "oskargum@gmail.com"
-password = "epkiiqlfgiztqpee"  # epki iqlf gizt qpee
+config_path = Path(__file__).with_name("config.json")
+if not config_path.exists():
+    raise FileNotFoundError(
+        "Brak pliku config.json. Utwórz go na podstawie config.example.json"
+    )
+with config_path.open() as f:
+    config = json.load(f)
+
+host = config.get("host")
+email = config.get("email")
+password = config.get("password")
 
 # Połączenie i logowanie
 mail = imapclient.IMAPClient(host, ssl=True)
@@ -38,4 +48,4 @@ for uid in uids:
     # print('📃 Treść:', body)
     print("📃 Treść:", body[:300])  # tylko fragment
     print("-" * 40)
-    
+
