@@ -1,6 +1,7 @@
 import imapclient
 import pyzmail
 import json
+
 import sys
 from pathlib import Path
 
@@ -8,15 +9,18 @@ from pathlib import Path
 def _load_config() -> dict:
     """Wczytuje plik konfiguracyjny z danymi logowania."""
     config_path = Path(sys.executable).resolve().parent / "config.json"
+    # - sys.executable wskazuje na ścieżkę do pliku wykonywalnego (.exe) po kompilacji,
+    # - .resolve().parent pobiera folder, w którym ten plik .exe się znajduje,
+    # - / "config.json" dodaje nazwę pliku konfiguracyjnego do tej ścieżki.
     with config_path.open() as f:
         return json.load(f)
-
 
 
 def fetch_emails():
     """
     Funkcja do pobierania e-maili z serwera IMAP.
     """
+    
     config = _load_config()
 
     host = config.get("host")
