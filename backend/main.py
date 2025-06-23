@@ -41,3 +41,5 @@ if __name__ == "__main__":
 
 
 # build: pyinstaller --onefile --name main main.py
+# CMD znajdz proces: -ano | findstr :8000
+# CMD zabij proces: taskkill /PID {tuWstawPID} /F /T
