@@ -1,15 +1,27 @@
 import imapclient
 import pyzmail
+import json
+import sys
+from pathlib import Path
+
+
+def _load_config() -> dict:
+    """Wczytuje plik konfiguracyjny z danymi logowania."""
+    config_path = Path(sys.executable).resolve().parent / "config.json"
+    with config_path.open() as f:
+        return json.load(f)
+
 
 
 def fetch_emails():
     """
     Funkcja do pobierania e-maili z serwera IMAP.
     """
-    # Dane logowania
-    host = "imap.gmail.com"  # lub inny serwer IMAP
-    email = "oskargum@gmail.com"
-    password = "epkiiqlfgiztqpee"  # epki iqlf gizt qpee
+    config = _load_config()
+
+    host = config.get("host")
+    email = config.get("email")
+    password = config.get("password")
 
     # Połączenie i logowanie
     mail = imapclient.IMAPClient(host, ssl=True)
