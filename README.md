@@ -7,3 +7,5 @@ Aplikacja klienta pocztowego z agentem AI
 2. Uzupełnij w nim dane logowania do serwera IMAP (host, email, hasło).
 3. Hasło do poczty GMAIL musi być hasłem aplikacji - https://myaccount.google.com/security -> Weryfikacja dwuetapowa
 
+Dysk dla projektu: https://drive.google.com/drive/folders/1joA6oAuo0ZnhBmkR9xbgm5WahEPIE2Fn?fbclid=IwY2xjawLJ2JRleHRuA2FlbQIxMABicmlkETBialVvYmJBWENvdk9Galh4AR67-hZQzLzESMGP_ghe2DWgVbVzPOGtclciwaooPDQVof4HVY2lMX7kfOOUBg_aem_KY6acSCggMjWqA-XpQGxTQ
+
