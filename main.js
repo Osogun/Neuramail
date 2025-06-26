@@ -32,9 +32,11 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+
   });
 
   mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
+
 
 app.on('before-quit', () => {
   if (backendProcess) {

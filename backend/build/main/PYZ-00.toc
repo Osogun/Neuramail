@@ -228,6 +228,10 @@
   ('base64',
    'C:\\Users\\User\\anaconda3\\envs\\neuromail\\lib\\base64.py',
    'PYMODULE'),
+  ('base_models',
+   'C:\\Users\\User\\OneDrive - Inżynieria dla Domu\\Oskar_G\\a. '
+   'Programowanie\\AgentyAI\\Neuromail\\backend\\base_models.py',
+   'PYMODULE'),
   ('bisect',
    'C:\\Users\\User\\anaconda3\\envs\\neuromail\\lib\\bisect.py',
    'PYMODULE'),
