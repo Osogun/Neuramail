@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fetchmail import get_inbox_list, fetch_emails
+from fetchmail import get_inbox_list, fetch_emails, send_mail
 from base_models import Email, EmailQuery
 from datetime import datetime
 
@@ -48,6 +48,12 @@ def get_emails(query: EmailQuery):
     return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
 
 
+@app.post("/api/send")
+def send_email(email: Email):
+    send_mail(email)
+    return {"status": "ok"}
+
+
 def format_imap_date(date_str: str) -> str:
     dt = datetime.strptime(date_str, "%d-%m-%Y") # zamiana formatu DD-MM-YYYY na datetime
     return dt.strftime("%d-%b-%Y")  # zamiana datetime na format IMAP 'DD-Mon-YYYY'
@@ -62,3 +68,4 @@ if __name__ == "__main__":
 # CMD znajdz proces: netstat -ano | findstr :8000
 # CMD zabij proces: taskkill /PID {tuWstawPID} /F /T
 # reczne odpalanie backendu: uvicorn main:app --reload --port 8000
+

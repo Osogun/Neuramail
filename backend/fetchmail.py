@@ -33,7 +33,7 @@ def login_to_email():
     
     config = _load_config()
 
-    host = config.get("host")
+    host = config.get("host_imap")
     email = config.get("email")
     password = config.get("password")
 
@@ -96,3 +96,28 @@ def fetch_emails(inbox="INBOX", filtr=["ALL"]):
         ))
         
     return mails
+
+
+def send_mail(email: Email):
+    """Send an email using SMTP based on the configuration."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    config = _load_config()
+    host = config.get("host_smtp")
+    port = config.get("smtp_port", 465)
+
+    msg = MIMEMultipart()
+    msg["Subject"] = email.subject
+    msg["From"] = (
+        f"{email.from_name} <{email.from_mail}>" if email.from_name else email.from_mail
+    )
+    msg["To"] = f"{email.to_name} <{email.to_mail}>" if email.to_name else email.to_mail
+    msg.attach(MIMEText(email.body, email.body_type))
+
+    with smtplib.SMTP_SSL(host, port) as smtp:
+        smtp.login(config.get("email"), config.get("password"))
+        smtp.sendmail(email.from_mail, [email.to_mail], msg.as_string())
+
+    return True
