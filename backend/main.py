@@ -1,9 +1,11 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fetchmail import get_inbox_list, fetch_emails, send_mail
+from imap_smtp import get_inbox_list, fetch_emails, send_email
 from base_models import Email, EmailQuery
 from datetime import datetime
+from pathlib import Path
+import base64
 
 
 app = FastAPI()
@@ -16,11 +18,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
 
+@app.post("/api/test")
+async def send_pdf():
+    try:
+        # Wczytaj plik PDF z dysku
+        file_path = Path("test.pdf")
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Plik test.pdf nie istnieje.")
+
+        with open(file_path, "rb") as f:
+            content = f.read()
+
+        # Zakoduj do base64
+        encoded = base64.b64encode(content).decode("utf-8")
+
+        # Stwórz obiekt Email (dostosuj do swojego modelu)
+        email = Email(
+            subject="Test Email",
+            from_name="Test",
+            from_mail="oskargum@gmail.com",
+            to_name="Test",
+            to_mail="oskargum@gmail.com",
+            date="",
+            body="This is a test email with a PDF attachment.",
+            body_type="text",
+            attachments=[{"filename": "test.pdf", "content": encoded}]
+        )
+
+        send_email(email)  # zakładam że ta funkcja rzuca wyjątki HTTPException jeśli coś pójdzie nie tak
+        return {"status": "ok"}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
+        
 @app.get("/api/inboxes")
 def get_inboxes():
     """
@@ -30,7 +66,7 @@ def get_inboxes():
     return {"inboxes": inboxes}
 
 @app.post("/api/emails")
-def get_emails(query: EmailQuery):
+def get_email_by_imap(query: EmailQuery):
     filtr = [query.filtr]
 
     if query.keyword:
@@ -44,14 +80,20 @@ def get_emails(query: EmailQuery):
     if query.before:
         filtr += ["BEFORE", format_imap_date(query.before)]
 
-    mails = fetch_emails(query.inbox, filtr)
-    return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
+    try:
+        mails = fetch_emails(query.inbox, filtr)
+        return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
+    except HTTPException as e:
+        raise e
 
 
 @app.post("/api/send")
-def send_email(email: Email):
-    send_mail(email)
-    return {"status": "ok"}
+def send_email_by_stmp(email: Email):
+    try:
+        status = send_email(email)
+        return(status)
+    except HTTPException as e:
+        raise e
 
 
 def format_imap_date(date_str: str) -> str:
