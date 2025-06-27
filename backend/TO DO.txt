@@ -1,0 +1,5 @@
+Dodać komentarze
+Ujednolicić format danych (klasy bazodanowe tylko na wejściu do bazy danych, konwersja z klas base Model)
+zapewnić by baza danych znalazla sie w dist
+przetestowac z electronem
+ogarnac zalaczniki

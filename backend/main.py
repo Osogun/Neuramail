@@ -1,25 +1,41 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from backend.imap_smtp_fun import get_inbox_list, fetch_emails, send_email, fetch_emails_metadata
-from base_models import Email, EmailQuery
+from mailbox_fun import send_email, fetch_emails_metadata, get_inboxes, fetch_email_data
+from base_models import Email, EmailQuery, SendEmail, GetEmail
 from datetime import datetime
 from pathlib import Path
 import base64
-from . import db_models
-from .database import engine
+from database import Base, engine
 from db_fun import sync_mailbox_metadata
-
+from contextlib import asynccontextmanager
+import threading
+from loadconfig import _load_config
+from database import SessionLocal
+from db_models import DBEmail
+from sqlalchemy import or_
+from datetime import datetime
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("BACKEND: Server wystartował")
-    db_models.Base.metadata.create_all(bind=engine)
-    sync_mailbox_metadata()
+    print("BACKEND: Start backendu")
+
+    Base.metadata.create_all(bind=engine)
+    config = _load_config()
+
+    # Uruchamiamy sync jako jednorazowy task w tle
+    def background_sync():
+        try:
+            sync_mailbox_metadata()
+            print("[SYNC] Synchronizacja zakończona")
+        except Exception as e:
+            print(f"[SYNC] Błąd podczas synchronizacji: {e}")
+
+    if config.get("sync_on_startup"):
+        threading.Thread(target=background_sync, daemon=True).start()
 
     yield
-    # cleanup np. zamknięcie połączeń, zapis logów itp.
-    print("BACKEDN: Shutdown aplikacji")
+    print("BACKEND: Shutdown backendu")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -30,11 +46,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello from FastAPI!"}
 
 @app.post("/api/test")
 async def send_pdf():
@@ -72,70 +83,76 @@ async def send_pdf():
         raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
         
 @app.get("/api/inboxes")
-def get_inboxes():
+def get_inboxes_by_imap():
     """
     Endpoint to fetch the list of inboxes.
     """
-    inboxes = get_inbox_list()
+    inboxes = get_inboxes()
+    print(inboxes)
     return {"inboxes": inboxes}
 
 @app.post("/api/metadata")
-def get_email_by_imap(query: EmailQuery):
-    filtr = [query.filtr]
-
-    if query.keyword:
-        filtr += ["TEXT", query.keyword]
-    if query.from_email:
-        filtr += ["FROM", query.from_email]
-    if query.to_email:
-        filtr += ["TO", query.to_email]
-    if query.since:
-        filtr += ["SINCE", format_imap_date(query.since)]
-    if query.before:
-        filtr += ["BEFORE", format_imap_date(query.before)]
-
+def get_metadata_from_db(query: EmailQuery):
+    db = SessionLocal()
     try:
-        mails = fetch_emails_metadata(query.inbox, filtr)
+        db_query = db.query(DBEmail)
+
+        # Filtrowanie dynamiczne
+        if query.mailbox:
+            db_query = db_query.filter(DBEmail.mailbox_name == query.mailbox)
+        if query.sender:
+            db_query = db_query.filter(DBEmail.sender == query.sender)
+        if query.sender_name:
+            db_query = db_query.filter(DBEmail.sender_name == query.sender_name)
+        if query.subject:
+            db_query = db_query.filter(DBEmail.subject.contains(query.subject))
+        if query.keyword:
+            db_query = db_query.filter(
+                or_(
+                    DBEmail.subject.contains(query.keyword),
+                    DBEmail.content_preview.contains(query.keyword)
+                )
+            )
+        if query.since:
+            try:
+                since_dt = datetime.strptime(query.since, "%Y-%m-%d")
+                db_query = db_query.filter(DBEmail.date >= since_dt.isoformat())
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'since'")
+        if query.before:
+            try:
+                before_dt = datetime.strptime(query.before, "%Y-%m-%d")
+                db_query = db_query.filter(DBEmail.date <= before_dt.isoformat())
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'before'")
+
+        # Wykonanie zapytania
+        result = db_query.all()
+        return [email.__dict__ for email in result]
+
+    finally:
+        db.close()
+
+@app.post("/api/get_email")
+def get_email_by_imap(query: GetEmail):
+    try:
+        mails = fetch_email_data(query.mailbox, query.uid)
         return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
     except HTTPException as e:
         raise e
 
-@app.post("/api/emails")
-def get_email_by_imap(query: EmailQuery):
-    filtr = [query.filtr]
 
-    if query.keyword:
-        filtr += ["TEXT", query.keyword]
-    if query.from_email:
-        filtr += ["FROM", query.from_email]
-    if query.to_email:
-        filtr += ["TO", query.to_email]
-    if query.since:
-        filtr += ["SINCE", format_imap_date(query.since)]
-    if query.before:
-        filtr += ["BEFORE", format_imap_date(query.before)]
-
-    try:
-        mails = fetch_emails(query.inbox, filtr)
-        return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
-    except HTTPException as e:
-        raise e
-
-
-@app.post("/api/send")
-def send_email_by_stmp(email: Email):
+@app.post("/api/send_email")
+def send_email_by_stmp(email: SendEmail):
     try:
         status = send_email(email)
         return(status)
     except HTTPException as e:
         raise e
 
-
 def format_imap_date(date_str: str) -> str:
     dt = datetime.strptime(date_str, "%d-%m-%Y") # zamiana formatu DD-MM-YYYY na datetime
     return dt.strftime("%d-%b-%Y")  # zamiana datetime na format IMAP 'DD-Mon-YYYY'
-
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

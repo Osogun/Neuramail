@@ -1,3 +1,6 @@
 node_modules/
 backend/dist/config.json
 backend/dist/main.exe
+__pycache__/
+*.pyc
+app.db

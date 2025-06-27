@@ -7,38 +7,17 @@ import sys
 import base64
 from fastapi import HTTPException
 
-from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from pydantic import BaseModel
-from mailbox_models import Inbox, Email, EmailQuery, Attachment
-from db_models import DBMailbox, DBEmail, DBAttachment
+from base_models import Inbox, Email, EmailQuery, Attachment, SendEmail
+from db_models import DBInbox, DBEmail, DBAttachment
+from loadconfig import _load_config
 
 # ----------------------------------------
 # Funkcje pomocnicze do logowania i wczytywania konfiguracji
 # ----------------------------------------
-
-def _load_config() -> dict:
-    """
-    Wczytuje plik konfiguracyjny z danymi logowania.
-    """
-
-    if getattr(sys, "frozen", False):
-        # Jeśli aplikacja jest uruchomiona jako skompilowany plik .exe
-        config_path = Path(sys.executable).resolve().parent / "config.json"
-        # - sys.executable wskazuje na ścieżkę do pliku wykonywalnego (.exe) po kompilacji,
-        # - .resolve().parent pobiera folder, w którym ten plik .exe się znajduje,
-        # - / "config.json" dodaje nazwę pliku konfiguracyjnego do tej ścieżki.
-    else:
-        # Jeśli aplikacja jest uruchomiona jako skrypt Pythona
-        config_path = Path(__file__).resolve().parent / "dist/config.json"
-
-    if not config_path.exists():
-        raise FileNotFoundError(f"Brak pliku konfiguracyjnego: {config_path}")
-
-    with config_path.open() as f:
-        return json.load(f)
 
 def login_to_imap(config):
     """
@@ -72,6 +51,24 @@ def login_to_smtp(config):
 
     return smtp
 
+def get_inboxes():
+    config = _load_config()
+    mail = login_to_imap(config)
+
+    inboxes_list = [name for _, _, name in mail.list_folders()]
+    inboxes = []
+
+    for inbox in inboxes_list:
+        try:
+            mail.select_folder(inbox, readonly=True)
+            status = mail.folder_status(inbox, ["UNSEEN", "MESSAGES", "UIDVALIDITY"])
+            inboxes.append(Inbox(name=inbox, unread_count=status[b"UNSEEN"], total_count=status[b"MESSAGES"], uidvalidity=status[b"UIDVALIDITY"]))
+        except Exception as e:
+            print(f"Błąd przy przetwarzaniu folderu: {inbox}, pomijam. Błąd: {e}")
+
+    mail.logout()
+    return inboxes
+    
 def fetch_email(mail, inbox, uid):
     mail.select_folder(inbox, readonly=True)
     raw_message = mail.fetch(
@@ -117,32 +114,28 @@ def fetch_email(mail, inbox, uid):
             content = base64.b64encode(attachment).decode(
                 "utf-8"
             )  # Kodujemy zawartość załącznika w base64 i dekodujemy na UTF-8
-            file_type = (
-                part.content_type or "application/octet-stream"
-            )  # Pobieramy typ zawartości załącznika, jeśli nie jest podany, to ustawiamy na "application/octet-stream"
             size = len(attachment)  # Pobieramy rozmiar załącznika w bajtach
             attachments.append(
                 {
                     "filename": filename,
-                    "file_type": file_type,
                     "size": size,
                     "content": content,
                 }
             )  # Tworzymy obiekt załacznika i dodajemy go do listy
 
-        email = {
-            "uid": uid,  # Unikalny identyfikator wiadomości
-            "subject": subject,  # Temat wiadomości
-            "sender": (
-                from_[0][1] if from_ else "Nieznany nadawca"
-            ),  # Adres e-mail nadawcy
-            "sender_name": from_[0][0] if from_ else "Nieznany",
-            "date": date,  # Data wiadomości
-            "flags": flags,  # Flagi wiadomości (np. czy jest przeczytana, oznaczona jako spam itp.)
-            "body": body,  # Treść wiadomości
-            "body_type": body_type,  # Typ treści wiadomości (HTML lub tekst)
-            "attachments": attachments,  # Lista załączników
-            "inbox": inbox,  # Nazwa skrzynki odbiorczej, z której pochodzi wiadomość
+    email = {
+        "uid": uid,  # Unikalny identyfikator wiadomości
+        "subject": subject,  # Temat wiadomości
+        "sender": (
+            from_[0][1] if from_ else "Nieznany nadawca"
+        ),  # Adres e-mail nadawcy
+        "sender_name": from_[0][0] if from_ else "Nieznany",
+        "date": date,  # Data wiadomości
+        "flags": flags,  # Flagi wiadomości (np. czy jest przeczytana, oznaczona jako spam itp.)
+        "body": body,  # Treść wiadomości
+        "body_type": body_type,  # Typ treści wiadomości (HTML lub tekst)
+        "attachments": attachments,  # Lista załączników
+        "inbox": inbox,  # Nazwa skrzynki odbiorczej, z której pochodzi wiadomość
         }
 
     return email
@@ -156,37 +149,6 @@ def get_uids(inbox):
     mail = login_to_imap(config)
     mail.select_folder(inbox, readonly=True)
     return mail.search(['ALL'])
-
-def get_inboxes():
-    """
-    Funkcja do pobierania listy skrzynek odbiorczych z serwera IMAP.
-    """
-    config = _load_config()  # Wczytanie konfiguracji z pliku config.json
-    mail = login_to_imap(config)  # Logowanie do serwera IMAP
-    inboxes_list = [
-        name for _, _, name in mail.list_folders()
-    ]  # Pobieranie listy skrzynek odbiorczych
-    inboxes = []
-    for inbox in inboxes_list:
-        mail.select_folder(inbox, readonly=True)
-        status = mail.folder_status(
-            inbox, ["UNSEEN", "MESSAGES", "UIDVALIDITY"]
-        )  # Pobieranie statusu skrzynki odbiorczej
-        unread_count = status[b"UNSEEN"]  # Liczba nieprzeczytanych wiadomości
-        total_count = status[b"MESSAGES"]  # Łączna liczba wiadomości
-        uidvalidity = status[b"UIDVALIDITY"]  # UIDVALIDITY skrzynki odbiorczej
-        # Dodajemy skrzynkę odbiorczą do listy z informacjami o liczbie wiadomości
-        inboxes.append(
-            {
-                "name": inbox,
-                "unread_count": unread_count,
-                "total_count": total_count,
-                "uidvalidity": uidvalidity,
-            }
-        )
-
-    mail.logout()  # Zamykanie połączenia z serwerem IMAP
-    return inboxes
 
 def fetch_email_data(inbox, uid):
     try:
@@ -224,10 +186,8 @@ def fetch_email_data(inbox, uid):
         raise HTTPException(
             status_code=500, detail=f"Nieznany błąd: {str(e)}"
         )  # Inne nieoczekiwane błędy
-    finally:
-        mail.logout()  # Zamykanie połączenia z serwerem IMAP, nawet jeśli wystąpił błąd
 
-def send_email(email: Email):
+def send_email(email: SendEmail):
     """
     Funkcja do wysyłania e-maili przez serwer SMTP.
     """
@@ -237,9 +197,7 @@ def send_email(email: Email):
 
         msg = MIMEMultipart()  # Tworzenie wiadomości MIME
         msg["Subject"] = email.subject
-        msg["To"] = (
-            f"{email.to_name} <{email.to_mail}>" if email.to_name else email.to_mail
-        )  # Ustawianie odbiorcy wiadomości
+        msg["To"] = email.mail_to # Ustawianie odbiorcy wiadomości
         msg.attach(
             MIMEText(email.body, email.body_type)
         )  # Dodawanie treści wiadomości (HTML lub tekst) do obiektu MIME
@@ -258,7 +216,7 @@ def send_email(email: Email):
                 msg.attach(part)  # Dodawanie załącznika do obiektu drzewa MIME
 
         smtp.sendmail(
-            email.from_mail, [email.to_mail], msg.as_string()
+            email.from_mail, [email.mail_to], msg.as_string()
         )  # Wysyłka wiadomości
         smtp.quit()  # Zamykanie połączenia z serwerem SMTP
         return {"status": "ok"}  # Zwracamy status powodzenia
@@ -282,56 +240,48 @@ def send_email(email: Email):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Nieznany błąd: {str(e)}"
-        )  # Inne nieoczekiwane błędy
-    finally:
-        smtp.quit()  # Zamykanie połączenia z serwerem SMTP, nawet jeśli wystąpił błąd
-
+        )  # Inne nieoczekiwane błędy 
+    
 def fetch_emails_metadata(inbox, uids_list):
     try:
-        config = _load_config()  # Wczytanie konfiguracji z pliku config.json
-        mail = login_to_imap(config)  # Logowanie do serwera IMAP
+        config = _load_config()
+        mail = login_to_imap(config)
         mail.select_folder(inbox, readonly=True)
-        
+
         emails = []
-        attachements = []
-        
-        for uid in uids_list:     
+        attachments = []
+
+        for uid in uids_list:
             email_data = fetch_email(mail, inbox, uid)
+
+            # dodajemy e-mail
             emails.append(DBEmail(
                 uid=email_data["uid"],
                 sender=email_data["sender"],
                 sender_name=email_data["sender_name"],
                 date=email_data["date"],
-                subject=email_data["subject"],            
-                content_preview=email_data["body"][:20],  # Pobieramy pierwsze 20 znaków jako podgląd treści
-                mailbox_name=email_data['inbox']
+                subject=email_data["subject"],
+                content_preview=email_data["body"][:20],
+                mailbox_name=email_data["inbox"]
             ))
-            
-            attachements.append(DBAttachment(
-                email_uid=email_data["uid"],  # Ustawiamy UID wiadomości jako klucz obcy
-                filename=email_data["attachments"][0]["filename"] if email_data["attachments"] else None,
-                content_type=email_data["attachments"][0]["file_type"] if email_data["attachments"] else None,
-                size=email_data["attachments"][0]["size"] if email_data["attachments"] else 0,
-            ))
-        
-        mail.logout()  # Zamykanie połączenia z serwerem IMAP
-        return emails, attachements  # Zwracamy obiekt DBEmail i DBAttachment
-        
-    # Obsługa wyjątków
+
+            # dodajemy załączniki
+            for att in email_data["attachments"]:
+                attachments.append(DBAttachment(
+                    email_uid=email_data["uid"],
+                    filename=att.get("filename"),
+                    size=att.get("size", 0),
+                ))
+
+        mail.logout()
+        return emails, attachments
+
     except imapclient.exceptions.LoginError as e:
-        raise HTTPException(
-            status_code=401, detail=f"Błąd logowania do serwera IMAP: {str(e)}"
-        )  # Błąd logowania do serwera IMAP
+        raise HTTPException(status_code=401, detail=f"Błąd logowania: {e}")
     except imapclient.exceptions.IMAPClientError as e:
-        raise HTTPException(
-            status_code=500, detail=f"Błąd połączenia z serwerem IMAP: {str(e)}"
-        )  # Błąd połączenia z serwerem IMAP
+        raise HTTPException(status_code=500, detail=f"Błąd IMAP: {e}")
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Nieznany błąd: {str(e)}"
-        )  # Inne nieoczekiwane błędy
-    finally:
-        mail.logout()  # Zamykanie połączenia z serwerem IMAP, nawet jeśli wystąpił błąd
+        raise HTTPException(status_code=500, detail=f"Nieznany błąd: {e}")
 
 ##########################################################
 
@@ -350,7 +300,7 @@ def fetch_filtred_emails(inbox="INBOX", filtr=["ALL"]):
             inbox, readonly=True
         )  # readonly=True oznacza, że nie będziemy modyfikować skrzynki odbiorczej (np. oznaczać wiadomości jako przeczytane przy pobieraniu).
         # Szukamy maili z użyciem określonego filtra
-        uids = mail.search(['ALL'])[]  # ["ALL'] lub ['UNSEEN'], ['FROM', 'adres@kogoś.pl'], itd.
+        uids = mail.search(['ALL'])  # ["ALL'] lub ['UNSEEN'], ['FROM', 'adres@kogoś.pl'], itd.
         # Przygotowanie listy do przechowywania e-maili
         mails = []
         # Konwertujemy pobrane przez IMAP obiekty MIME na Email zdefiniowane w base_models.py
@@ -375,5 +325,3 @@ def fetch_filtred_emails(inbox="INBOX", filtr=["ALL"]):
         raise HTTPException(
             status_code=500, detail=f"Nieznany błąd: {str(e)}"
         )  # Inne nieoczekiwane błędy
-    finally:
-        mail.logout()  # Zamykanie połączenia z serwerem IMAP, nawet jeśli wystąpił błąd
