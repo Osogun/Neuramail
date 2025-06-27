@@ -1,22 +1,36 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from imap_smtp import get_inbox_list, fetch_emails, send_email, fetch_emails_metadata
+from backend.imap_smtp_fun import get_inbox_list, fetch_emails, send_email, fetch_emails_metadata
 from base_models import Email, EmailQuery
 from datetime import datetime
 from pathlib import Path
 import base64
+from . import db_models
+from .database import engine
+from db_fun import sync_mailbox_metadata
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("BACKEND: Server wystartował")
+    db_models.Base.metadata.create_all(bind=engine)
+    sync_mailbox_metadata()
+
+    yield
+    # cleanup np. zamknięcie połączeń, zapis logów itp.
+    print("BACKEDN: Shutdown aplikacji")
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/")
 def read_root():

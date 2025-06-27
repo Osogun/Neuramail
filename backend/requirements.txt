@@ -3,3 +3,5 @@ uvicorn
 imapclient
 pyzmail36
 smtplib
+sqlalchemy
+aiosqlite
