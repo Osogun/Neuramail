@@ -14,12 +14,12 @@ class Email(BaseModel):
     body: str
 
 # Dane logowania
-host = "imap.gmail.com"  # lub inny serwer IMAP
+host_imap = "imap.gmail.com"  # lub inny serwer IMAP
 email = "oskargum@gmail.com"
 password = "epkiiqlfgiztqpee"  # epki iqlf gizt qpee
 
 # Połączenie i logowanie
-mail = imapclient.IMAPClient(host, ssl=True)
+mail = imapclient.IMAPClient(host_imap, ssl=True)
 mail.login(email, password)
 
 # Wybieramy skrzynkę odbiorczą

@@ -2,11 +2,11 @@ from pydantic import BaseModel
 
 class Email(BaseModel):
     subject: str
-    from_name: str
+    from_name: str | None = None
     from_mail: str
-    to_name: str
+    to_name: str | None = None
     to_mail: str
-    date: str
+    date: str | None = None
     body: str
     body_type: str
     
