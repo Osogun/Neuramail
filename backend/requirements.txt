@@ -2,3 +2,4 @@ fastapi
 uvicorn
 imapclient
 pyzmail36
+smtplib

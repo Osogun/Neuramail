@@ -1,9 +1,12 @@
 import imapclient
 import pyzmail
 import json
-
+import smtplib
 import sys
+
 from pathlib import Path
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from pydantic import BaseModel
 from base_models import Email, EmailQuery
 
@@ -100,9 +103,6 @@ def fetch_emails(inbox="INBOX", filtr=["ALL"]):
 
 def send_mail(email: Email):
     """Send an email using SMTP based on the configuration."""
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
 
     config = _load_config()
     host = config.get("host_smtp")
@@ -111,10 +111,12 @@ def send_mail(email: Email):
     msg = MIMEMultipart()
     msg["Subject"] = email.subject
     msg["From"] = (
-        f"{email.from_name} <{email.from_mail}>" if email.from_name else email.from_mail
+        f"{email.from_name} <{email.from_mail}>" if email.from_name else email.from_mail # Do weryfikacji
     )
-    msg["To"] = f"{email.to_name} <{email.to_mail}>" if email.to_name else email.to_mail
+    msg["To"] = f"{email.to_name} <{email.to_mail}>" if email.to_name else email.to_mail #Tez
     msg.attach(MIMEText(email.body, email.body_type))
+    
+    # Oprogramowac dodawanie załączników !!
 
     with smtplib.SMTP_SSL(host, port) as smtp:
         smtp.login(config.get("email"), config.get("password"))

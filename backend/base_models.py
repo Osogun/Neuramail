@@ -2,13 +2,13 @@ from pydantic import BaseModel
 
 class Email(BaseModel):
     subject: str
-    from_name: str | None = None
+    from_name: str = None
     from_mail: str
-    to_name: str | None = None
+    to_name: str = None
     to_mail: str
-    date: str | None = None
+    date: str = None
     body: str
-    body_type: str
+    body_type: str = "html"
     
 class EmailQuery(BaseModel):
     inbox: str = "INBOX"  # Default to INBOX
