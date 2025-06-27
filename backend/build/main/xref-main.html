@@ -22,6 +22,7 @@ imports:
  &#8226;   <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
  &#8226;   <a href="#abc">abc</a>
+ &#8226;   <a href="#base64">base64</a>
  &#8226;   <a href="#base_models">base_models</a>
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#collections">collections</a>
@@ -153,10 +154,10 @@ imports:
  &#8226;   <a href="#enum">enum</a>
  &#8226;   <a href="#fastapi">fastapi</a>
  &#8226;   <a href="#fastapi.middleware.cors">fastapi.middleware.cors</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#heapq">heapq</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#keyword">keyword</a>
  &#8226;   <a href="#linecache">linecache</a>
@@ -164,6 +165,7 @@ imports:
  &#8226;   <a href="#ntpath">ntpath</a>
  &#8226;   <a href="#operator">operator</a>
  &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
  &#8226;   <a href="#posixpath">posixpath</a>
  &#8226;   <a href="#pyi_rth_inspect.py">pyi_rth_inspect.py</a>
  &#8226;   <a href="#pyi_rth_multiprocessing.py">pyi_rth_multiprocessing.py</a>
@@ -3907,7 +3909,9 @@ imported by:
  &#8226;   <a href="#email.encoders">email.encoders</a>
  &#8226;   <a href="#encodings.base64_codec">encodings.base64_codec</a>
  &#8226;   <a href="#fastapi.security.http">fastapi.security.http</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#logging.handlers">logging.handlers</a>
+ &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#pydantic.types">pydantic.types</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
  &#8226;   <a href="#secrets">secrets</a>
@@ -3931,7 +3935,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#main.py">main.py</a>
 
   </div>
@@ -5614,6 +5618,7 @@ imported by:
  &#8226;   <a href="#email.iterators">email.iterators</a>
  &#8226;   <a href="#email.message">email.message</a>
  &#8226;   <a href="#email.mime">email.mime</a>
+ &#8226;   <a href="#email.mime.application">email.mime.application</a>
  &#8226;   <a href="#email.mime.base">email.mime.base</a>
  &#8226;   <a href="#email.mime.image">email.mime.image</a>
  &#8226;   <a href="#email.mime.nonmultipart">email.mime.nonmultipart</a>
@@ -5801,6 +5806,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#email.charset">email.charset</a>
+ &#8226;   <a href="#email.mime.application">email.mime.application</a>
  &#8226;   <a href="#email.mime.image">email.mime.image</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
 
@@ -5993,12 +5999,32 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#email.mime.base">email.mime.base</a>
+    <a href="#email.mime.application">email.mime.application</a>
+ &#8226;   <a href="#email.mime.base">email.mime.base</a>
  &#8226;   <a href="#email.mime.image">email.mime.image</a>
  &#8226;   <a href="#email.mime.multipart">email.mime.multipart</a>
  &#8226;   <a href="#email.mime.nonmultipart">email.mime.nonmultipart</a>
  &#8226;   <a href="#email.mime.text">email.mime.text</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="email.mime.application"></a>
+  <a target="code" href="///C:/Users/User/anaconda3/envs/neuromail/lib/email/mime/application.py" type="text/plain"><tt>email.mime.application</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#email">email</a>
+ &#8226;   <a href="#email.encoders">email.encoders</a>
+ &#8226;   <a href="#email.mime">email.mime</a>
+ &#8226;   <a href="#email.mime.nonmultipart">email.mime.nonmultipart</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#imap_smtp">imap_smtp</a>
 
   </div>
 
@@ -6056,7 +6082,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
 
   </div>
@@ -6076,7 +6102,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#email.mime.image">email.mime.image</a>
+    <a href="#email.mime.application">email.mime.application</a>
+ &#8226;   <a href="#email.mime.image">email.mime.image</a>
  &#8226;   <a href="#email.mime.text">email.mime.text</a>
 
   </div>
@@ -6095,7 +6122,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
 
   </div>
@@ -9015,6 +9042,7 @@ imported by:
  &#8226;   <a href="#fastapi.types">fastapi.types</a>
  &#8226;   <a href="#fastapi.utils">fastapi.utils</a>
  &#8226;   <a href="#fastapi.websockets">fastapi.websockets</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#main.py">main.py</a>
 
   </div>
@@ -9905,32 +9933,6 @@ imports:
 imported by:
     <a href="#fastapi">fastapi</a>
  &#8226;   <a href="#fastapi.exception_handlers">fastapi.exception_handlers</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="fetchmail"></a>
-  <a target="code" href="///C:/Users/User/OneDrive%20-%20In%C5%BCynieria%20dla%20Domu/Oskar_G/a.%20Programowanie/AgentyAI/Neuromail/backend/fetchmail.py" type="text/plain"><tt>fetchmail</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#base_models">base_models</a>
- &#8226;   <a href="#email.mime.multipart">email.mime.multipart</a>
- &#8226;   <a href="#email.mime.text">email.mime.text</a>
- &#8226;   <a href="#imapclient">imapclient</a>
- &#8226;   <a href="#json">json</a>
- &#8226;   <a href="#pathlib">pathlib</a>
- &#8226;   <a href="#pydantic">pydantic</a>
- &#8226;   <a href="#pydantic.BaseModel">pydantic.BaseModel</a>
- &#8226;   <a href="#pyzmail">pyzmail</a>
- &#8226;   <a href="#smtplib">smtplib</a>
- &#8226;   <a href="#sys">sys</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
 
   </div>
 
@@ -10906,6 +10908,36 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="imap_smtp"></a>
+  <a target="code" href="///C:/Users/User/OneDrive%20-%20In%C5%BCynieria%20dla%20Domu/Oskar_G/a.%20Programowanie/AgentyAI/Neuromail/backend/imap_smtp.py" type="text/plain"><tt>imap_smtp</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#base64">base64</a>
+ &#8226;   <a href="#base_models">base_models</a>
+ &#8226;   <a href="#email.mime.application">email.mime.application</a>
+ &#8226;   <a href="#email.mime.multipart">email.mime.multipart</a>
+ &#8226;   <a href="#email.mime.text">email.mime.text</a>
+ &#8226;   <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#imapclient">imapclient</a>
+ &#8226;   <a href="#imapclient.exceptions">imapclient.exceptions</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#pydantic">pydantic</a>
+ &#8226;   <a href="#pydantic.BaseModel">pydantic.BaseModel</a>
+ &#8226;   <a href="#pyzmail">pyzmail</a>
+ &#8226;   <a href="#smtplib">smtplib</a>
+ &#8226;   <a href="#sys">sys</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="imapclient"></a>
   <a target="code" href="///C:/Users/User/anaconda3/envs/neuromail/lib/site-packages/imapclient/__init__.py" type="text/plain"><tt>imapclient</tt></a>
 <span class="moduletype">Package</span>  <div class="import">
@@ -10922,7 +10954,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#imapclient">imapclient</a>
  &#8226;   <a href="#imapclient.datetime_util">imapclient.datetime_util</a>
  &#8226;   <a href="#imapclient.exceptions">imapclient.exceptions</a>
@@ -10974,7 +11006,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#imapclient">imapclient</a>
+    <a href="#imap_smtp">imap_smtp</a>
+ &#8226;   <a href="#imapclient">imapclient</a>
  &#8226;   <a href="#imapclient.imapclient">imapclient.imapclient</a>
  &#8226;   <a href="#imapclient.response_parser">imapclient.response_parser</a>
  &#8226;   <a href="#imapclient.util">imapclient.util</a>
@@ -12084,7 +12117,7 @@ imports:
 imported by:
     <a href="#fastapi.openapi.docs">fastapi.openapi.docs</a>
  &#8226;   <a href="#fastapi.routing">fastapi.routing</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#importlib_metadata">importlib_metadata</a>
  &#8226;   <a href="#json.decoder">json.decoder</a>
  &#8226;   <a href="#json.encoder">json.encoder</a>
@@ -13690,12 +13723,13 @@ imported by:
     <a href="#anyio._core._fileio">anyio._core._fileio</a>
  &#8226;   <a href="#click.types">click.types</a>
  &#8226;   <a href="#fastapi.encoders">fastapi.encoders</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#importlib._common">importlib._common</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#importlib.resources">importlib.resources</a>
  &#8226;   <a href="#importlib_metadata">importlib_metadata</a>
  &#8226;   <a href="#importlib_metadata.compat.py311">importlib_metadata.compat.py311</a>
+ &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#pydantic._internal._generate_schema">pydantic._internal._generate_schema</a>
  &#8226;   <a href="#pydantic._internal._git">pydantic._internal._git</a>
  &#8226;   <a href="#pydantic.deprecated.json">pydantic.deprecated.json</a>
@@ -14077,7 +14111,7 @@ imported by:
  &#8226;   <a href="#fastapi.security.http">fastapi.security.http</a>
  &#8226;   <a href="#fastapi.types">fastapi.types</a>
  &#8226;   <a href="#fastapi.utils">fastapi.utils</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#pydantic">pydantic</a>
  &#8226;   <a href="#pydantic._internal">pydantic._internal</a>
  &#8226;   <a href="#pydantic._internal._core_utils">pydantic._internal._core_utils</a>
@@ -14148,7 +14182,7 @@ imported by:
  &#8226;   <a href="#fastapi.security.http">fastapi.security.http</a>
  &#8226;   <a href="#fastapi.types">fastapi.types</a>
  &#8226;   <a href="#fastapi.utils">fastapi.utils</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#pydantic">pydantic</a>
  &#8226;   <a href="#pydantic._internal._core_utils">pydantic._internal._core_utils</a>
  &#8226;   <a href="#pydantic._internal._import_utils">pydantic._internal._import_utils</a>
@@ -17767,7 +17801,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#pyzmail">pyzmail</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
  &#8226;   <a href="#pyzmail.parse">pyzmail.parse</a>
@@ -18333,7 +18367,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#fetchmail">fetchmail</a>
+    <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#logging.handlers">logging.handlers</a>
  &#8226;   <a href="#pyzmail.generate">pyzmail.generate</a>
 
@@ -19473,7 +19507,6 @@ imported by:
  &#8226;   <a href="#exceptiongroup._exceptions">exceptiongroup._exceptions</a>
  &#8226;   <a href="#exceptiongroup._formatting">exceptiongroup._formatting</a>
  &#8226;   <a href="#exceptiongroup._suppress">exceptiongroup._suppress</a>
- &#8226;   <a href="#fetchmail">fetchmail</a>
  &#8226;   <a href="#fractions">fractions</a>
  &#8226;   <a href="#ftplib">ftplib</a>
  &#8226;   <a href="#getopt">getopt</a>
@@ -19482,6 +19515,7 @@ imported by:
  &#8226;   <a href="#glob">glob</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#h11._receivebuffer">h11._receivebuffer</a>
+ &#8226;   <a href="#imap_smtp">imap_smtp</a>
  &#8226;   <a href="#imapclient.imapclient">imapclient.imapclient</a>
  &#8226;   <a href="#imapclient.response_parser">imapclient.response_parser</a>
  &#8226;   <a href="#imaplib">imaplib</a>

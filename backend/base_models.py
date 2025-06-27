@@ -1,5 +1,9 @@
 from pydantic import BaseModel
 
+class Attachment(BaseModel):
+    filename: str
+    content: str  # base64 string
+
 class Email(BaseModel):
     subject: str
     from_name: str = None
@@ -9,6 +13,8 @@ class Email(BaseModel):
     date: str = None
     body: str
     body_type: str = "html"
+    attachments: list[Attachment] = []
+
     
 class EmailQuery(BaseModel):
     inbox: str = "INBOX"  # Default to INBOX
