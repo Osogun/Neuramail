@@ -1,0 +1,67 @@
+/* src/components/MailItem.css */
+.mail-item {
+  background: transparent;
+  border-bottom: 1px solid var(--border-strong);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  will-change: background-color;
+}
+
+.mails-grid > .mail-item:last-child {
+  border-bottom: none;
+}
+
+.mail-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+body.dark-theme .mail-item:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.mail-item-content {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+}
+
+.mail-header-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+.mail-subject {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+.mail-sender, .mail-date, .mail-body {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.mail-sender {
+  flex-shrink: 0;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mail-date {
+  font-size: 0.8em;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.mail-body {
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

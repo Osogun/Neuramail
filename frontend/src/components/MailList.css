@@ -1,0 +1,32 @@
+/* src/components/MailList.css */
+.mail-list-card {
+  /* USUNIĘTO: padding: 24px; */
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-list-card .mail-list-content {
+  position: relative;
+  z-index: 2;
+  /* NOWOŚĆ: Przeniesiono padding tutaj, aby poprawnie działał wewnątrz karty. */
+  padding: 24px; 
+}
+
+.mail-list-heading {
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.mails-grid {
+  display: grid;
+  gap: 0;
+}
+
+.status-box {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}

@@ -1,0 +1,53 @@
+/* src/components/Sidebar.css */
+.sidebar-content {
+  position: relative;
+  z-index: 2;
+  /* NOWOŚĆ: Dodajemy padding, aby zawartość nie dotykała krawędzi karty. */
+  padding: 24px 16px;
+}
+
+.compose-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--primary-accent-text);
+  background: var(--primary-accent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+.compose-button:hover {
+  background: var(--primary-accent-hover);
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.5);
+  transform: translateY(-2px);
+}
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.nav-item {
+  padding: 10px 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+}
+.nav-item.active {
+  background-color: rgba(30, 64, 175, 0.1);
+  color: var(--primary-accent-hover);
+  font-weight: 600;
+}
