@@ -88,6 +88,57 @@ def get_inbox_list():
     mail.logout()  # Zamykanie połączenia z serwerem IMAP
     return inboxes
 
+def fetch_emails_metadata(inbox="INBOX", filtr=["ALL"]):
+    """
+    Pobiera metadane e-maili: temat, nadawcę, odbiorcę, datę i 20 słów z treści.
+    """
+
+    try:
+        config = _load_config()
+        mail = login_to_imap(config)
+        mail.select_folder(inbox, readonly=True)
+        uids = mail.search(filtr)
+        mails = []
+
+        for uid in uids:
+            raw_message = mail.fetch([uid], ["BODY[]", "FLAGS"])
+            message = pyzmail.PyzMessage.factory(raw_message[uid][b"BODY[]"])
+
+            subject = message.get_subject()
+            from_ = message.get_addresses("from")
+            to_ = message.get_addresses("to")
+            date = message.get_decoded_header("date")
+
+            # Pobieramy treść (text lub html)
+            if message.text_part:
+                body = message.text_part.get_payload().decode(message.text_part.charset)
+            elif message.html_part:
+                body = message.html_part.get_payload().decode(message.html_part.charset)
+            else:
+                body = ""
+
+            # Skrócona treść – pierwsze 20 słów
+            words = body.split()
+            short_body = " ".join(words[:20])
+
+            mails.append({
+                "subject": subject,
+                "from_mail": from_[0][1] if from_ else "Nieznany nadawca",
+                "to_mail": to_[0][1] if to_ else "Nieznany odbiorca",
+                "date": date,
+                "body_excerpt": short_body
+            })
+
+        mail.logout()
+        return mails
+
+    except imapclient.exceptions.LoginError as e:
+        raise HTTPException(status_code=401, detail=f"Błąd logowania do serwera IMAP: {str(e)}")
+    except imapclient.exceptions.IMAPClientError as e:
+        raise HTTPException(status_code=500, detail=f"Błąd połączenia z serwerem IMAP: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Nieznany błąd: {str(e)}")
+
 def fetch_emails(inbox="INBOX", filtr=["ALL"]):
     """
     Funkcja do pobierania e-maili z serwera IMAP.

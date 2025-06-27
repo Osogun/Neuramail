@@ -1,4 +1,4 @@
-# Neuromail
+# Neuramail
 Aplikacja klienta pocztowego z agentem AI
 
 ## Konfiguracja backendu

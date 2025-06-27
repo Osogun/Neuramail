@@ -62,7 +62,7 @@ function App() {
         const response = await fetch(`${API_URL}/emails`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inbox: activeFolder, filtr: 'ALL' }),
+          body: JSON.stringify({ inbox: activeFolder, filtr: 'UNSEEN' }),
         });
         if (!response.ok) throw new Error('Network response was not ok');
         

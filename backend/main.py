@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from imap_smtp import get_inbox_list, fetch_emails, send_email
+from imap_smtp import get_inbox_list, fetch_emails, send_email, fetch_emails_metadata
 from base_models import Email, EmailQuery
 from datetime import datetime
 from pathlib import Path
@@ -64,6 +64,27 @@ def get_inboxes():
     """
     inboxes = get_inbox_list()
     return {"inboxes": inboxes}
+
+@app.post("/api/metadata")
+def get_email_by_imap(query: EmailQuery):
+    filtr = [query.filtr]
+
+    if query.keyword:
+        filtr += ["TEXT", query.keyword]
+    if query.from_email:
+        filtr += ["FROM", query.from_email]
+    if query.to_email:
+        filtr += ["TO", query.to_email]
+    if query.since:
+        filtr += ["SINCE", format_imap_date(query.since)]
+    if query.before:
+        filtr += ["BEFORE", format_imap_date(query.before)]
+
+    try:
+        mails = fetch_emails_metadata(query.inbox, filtr)
+        return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
+    except HTTPException as e:
+        raise e
 
 @app.post("/api/emails")
 def get_email_by_imap(query: EmailQuery):
