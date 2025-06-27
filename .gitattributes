@@ -1,6 +1,2 @@
-
-*.html linguist-detectable=true
-*.js linguist-detectable=true
-*.css linguist-detectable=true
 frontedn/** linguist-language=JavaScript
 backend/** linguist-language=Python
