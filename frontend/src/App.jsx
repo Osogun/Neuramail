@@ -1,5 +1,4 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import MailList from './components/MailList';
 import MailDetail from './components/MailDetail';
@@ -7,24 +6,19 @@ import ComposeMail from './components/ComposeMail';
 import ThemeSwitcher from './components/ThemeSwitcher';
 import './App.css'; 
 
-const fakeMails = {
-  inbox: [
-    { id: 1, sender: 'Google', subject: 'Nowe logowanie na Twoim koncie', body: 'Wykryliśmy nowe logowanie na Twoim koncie w systemie Windows. Jeśli to nie Ty, natychmiast zabezpiecz swoje konto.', date: '10:15' },
-    { id: 2, sender: 'GitHub', subject: 'Your pull request was merged!', body: 'Great news! Your pull request "feat: add new floating compose window" into the main repository has been successfully merged and deployed.', date: '09:30' },
-  ],
-  sent: [ { id: 4, sender: 'Do: Anna Nowak', subject: 'Re: Projekt XYZ', body: 'Cześć Aniu, dzięki za feedback! Przesyłam zaktualizowaną wersję projektu. Daj znać co myślisz.', date: 'Wczoraj' } ],
-  drafts: [ { id: 5, sender: 'Do: Szef', subject: 'Raport kwartalny', body: 'Panie Prezesie, w załączniku przesyłam wstępną wersję...', date: '2 dni temu' } ],
-  trash: [ { id: 6, sender: 'Spam King', subject: 'Wygrałeś MILIONY!!!', body: 'Kliknij tutaj, aby odebrać nagrodę!', date: '3 dni temu' } ]
-};
+// Adres URL Twojego API backendu
+const API_URL = 'http://127.0.0.1:8000/api';
 
 function App() {
+  const [folders, setFolders] = useState([]);
   const [mails, setMails] = useState([]);
+  const [selectedMail, setSelectedMail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeFolder, setActiveFolder] = useState('inbox');
-  const [selectedMailId, setSelectedMailId] = useState(null);
+  const [activeFolder, setActiveFolder] = useState('');
   const [isComposing, setIsComposing] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
+  // Efekt do zmiany motywu
   useEffect(() => {
     document.body.className = '';
     document.body.classList.add(`${theme}-theme`);
@@ -35,22 +29,89 @@ function App() {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
+  // Pobieranie folderów przy pierwszym renderowaniu
   useEffect(() => {
-    setLoading(true);
-    setSelectedMailId(null); 
-    setTimeout(() => {
-      setMails(fakeMails[activeFolder] || []);
-      setLoading(false);
-    }, 500);
+    const fetchFolders = async () => {
+      try {
+        const response = await fetch(`${API_URL}/inboxes`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        
+        // Backend zwraca obiekt {"inboxes": [...]}, więc wyciągamy tablicę
+        const folderList = data.inboxes || [];
+        setFolders(folderList);
+
+        if (folderList.length > 0) {
+          setActiveFolder(folderList[0]); // Ustaw pierwszy folder jako aktywny
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania folderów:', error);
+      }
+    };
+    fetchFolders();
+  }, []);
+
+  // Pobieranie maili, gdy zmienia się aktywny folder
+  useEffect(() => {
+    if (!activeFolder) return;
+
+    const fetchEmails = async () => {
+      setLoading(true);
+      setSelectedMail(null); // Zresetuj wybranego maila
+      try {
+        const response = await fetch(`${API_URL}/emails`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inbox: activeFolder, filtr: 'ALL' }),
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        setMails(data || []);
+      } catch (error) {
+        console.error(`Błąd podczas pobierania maili dla folderu ${activeFolder}:`, error);
+        setMails([]); // Wyczyść maile w razie błędu
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmails();
   }, [activeFolder]);
 
+  // Pobieranie treści pojedynczego maila po kliknięciu
+  const handleSelectMail = useCallback(async (mailId) => {
+    if (!activeFolder || !mailId) return;
+
+    // Znajdź podstawowe dane maila na liście, żeby nie pobierać ich ponownie
+    const basicMailData = mails.find(m => m.id === mailId);
+    if (!basicMailData) return;
+    
+    // Ustaw od razu podstawowe dane, aby użytkownik widział treść szybciej
+    setSelectedMail(basicMailData);
+
+    // Możesz dodać pobieranie pełnej treści maila, jeśli lista zwraca tylko skróty
+    // W obecnej implementacji backendu, lista zwraca pełną treść, więc poniższy kod jest opcjonalny
+    /*
+    try {
+      const response = await fetch(`${API_URL}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email_id: mailId, inbox: activeFolder }),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const mailContent = await response.json();
+      setSelectedMail(mailContent);
+    } catch(error) {
+        console.error("Błąd podczas pobierania treści maila:", error);
+    }
+    */
+  }, [activeFolder, mails]);
+
   const handleFolderChange = (folder) => setActiveFolder(folder);
-  const handleSelectMail = (id) => setSelectedMailId(id);
-  const handleBackToList = () => setSelectedMailId(null);
+  const handleBackToList = () => setSelectedMail(null);
   const handleToggleCompose = () => setIsComposing(!isComposing);
 
-  const selectedMail = mails.find(mail => mail.id === selectedMailId);
-  
   return (
     <>
       <div className="app-container">
@@ -65,9 +126,11 @@ function App() {
             onComposeClick={handleToggleCompose} 
             onFolderChange={handleFolderChange} 
             activeFolder={activeFolder}
+            // przekazujemy foldery do paska bocznego, jeśli ma je dynamicznie renderować
+            // folders={folders} 
           />
           <main className="main-content">
-            {selectedMailId ? (
+            {selectedMail ? (
               <MailDetail mail={selectedMail} onBack={handleBackToList} />
             ) : (
               <MailList 
