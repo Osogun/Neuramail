@@ -1,44 +1,54 @@
-import uvicorn
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from mailbox_fun import send_email, fetch_emails_metadata, get_inboxes, fetch_email_data
-from base_models import Email, EmailQuery, SendEmail, GetEmail
-from datetime import datetime
-from pathlib import Path
-import base64
-from database import Base, engine
-from db_fun import sync_mailbox_metadata
-from contextlib import asynccontextmanager
-import threading
-from loadconfig import _load_config
-from database import SessionLocal
-from db_models import DBEmail
-from sqlalchemy import or_
-from datetime import datetime
+import uvicorn # Pakiet do uruchamiania aplikacji FastAPI
+import threading # Pakiet do obsługi wątków
+from pathlib import Path # Pakiet do obsługi ścieżek plików
+from datetime import datetime # Pakiet do obsługi dat i czasu
+import base64 # Pakiet do kodowania i dekodowania base64
+from fastapi import FastAPI, HTTPException # Pakiety FastAPI do tworzenia API
+from fastapi.middleware.cors import CORSMiddleware # Middleware do obsługi CORS
+from contextlib import asynccontextmanager # Pakiet do zarządzania kontekstem asynchronicznym
+from sqlalchemy import or_, and_ # Funkcje logiczne do tworzenia zapytań SQLAlchemy
 
+
+from base_models import * # Import modeli Pydantic, które definiują struktury danych dla API
+from database import * # Import modułów do obsługi bazy danych, w tym silnika, sesji i bazowej klasy modeli
+from db_models import * # Import modeli bazy danych, które są mapowane na tabele w bazie danych
+
+from mailbox_functions import send_email, fetch_emails, handle_opeation_on_imap, fetch_mailboxes
+from db_functions import background_sync
+
+
+from loadconfig import _load_config 
+
+
+# Asynchroniczny menedżer kontekstu, tj. taka "asynchroniczna werjsa with"
+"""
+Menedżer kontekstu to konstrukcja programistyczna, która zarządza zasobami w określonym zakresie działania — zapewnia automatyczne wykonanie kodu 
+przy wejściu i wyjściu z „kontekstu”, np. otwieranie i zamykanie pliku, otwieranie i zwalnianie połączenia z bazą danych, itp.
+"""
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    '''
+    Metoda zarządzająca cyklem życia aplikacji FastAPI.
+    '''
+    ### Kod wykonywany przy otwarciu zasobu - uruchomienia FastAPI
     print("BACKEND: Start backendu")
-
+    # Inicjalizacja bazy danych, ta funkcja tworzy wszystkie tabele w bazie danych na podstawie zdefiniowanych modeli w Base
+    # Jeśli tabele już istnieją, nie zostaną ponownie utworzone.
     Base.metadata.create_all(bind=engine)
+    # Wczytanie konfiguracji z pliku config.json
     config = _load_config()
-
-    # Uruchamiamy sync jako jednorazowy task w tle
-    def background_sync():
-        try:
-            sync_mailbox_metadata()
-            print("[SYNC] Synchronizacja zakończona")
-        except Exception as e:
-            print(f"[SYNC] Błąd podczas synchronizacji: {e}")
-
+    # Sprawdzenie czy synchronizacja ma być uruchomiona przy starcie
     if config.get("sync_on_startup"):
         threading.Thread(target=background_sync, daemon=True).start()
-
+        
+    ### Kod wykonywany przy zamknięciu zasobu - zamknięcia FastAPI
     yield
     print("BACKEND: Shutdown backendu")
 
+# Tworzenie instancji FastAPI z menedżerem cyklu życia
 app = FastAPI(lifespan=lifespan)
 
+# Dodanie middleware CORS, aby umożliwić dostęp z innych domen (w tym wypadku z frontendu przez elektron)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -47,6 +57,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+### Endpointy API
 @app.post("/api/test")
 async def send_pdf():
     try:
@@ -83,13 +94,17 @@ async def send_pdf():
         raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
         
 @app.get("/api/inboxes")
-def get_inboxes_by_imap():
+def get_mailboxes_by_imap():
     """
-    Endpoint to fetch the list of inboxes.
+    Endpoint do pobierania listy skrzynek pocztowych z serwera IMAP.
     """
-    inboxes = get_inboxes()
-    print(inboxes)
-    return {"inboxes": inboxes}
+    try:
+        inboxes = handle_opeation_on_imap(lambda mail: fetch_mailboxes(mail))
+        return {"inboxes": inboxes}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
 
 @app.post("/api/metadata")
 def get_metadata_from_db(query: EmailQuery):
@@ -129,30 +144,28 @@ def get_metadata_from_db(query: EmailQuery):
         # Wykonanie zapytania
         result = db_query.all()
         return [email.__dict__ for email in result]
-
     finally:
         db.close()
 
 @app.post("/api/get_email")
-def get_email_by_imap(query: GetEmail):
+def get_email_by_imap(query: GetEmails):
     try:
-        mails = fetch_email_data(query.mailbox, query.uid)
-        return mails  # Obiekty BaseModel są automatycznie serializowane do JSON, więc nie trzeba ich konwertować na słownik
+        emails = handle_opeation_on_imap(lambda mail: fetch_emails(query, mail))
+        return emails
     except HTTPException as e:
         raise e
-
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
 
 @app.post("/api/send_email")
-def send_email_by_stmp(email: SendEmail):
+def send_email_by_smtp(email: SendEmail):
     try:
         status = send_email(email)
-        return(status)
+        return status
     except HTTPException as e:
         raise e
-
-def format_imap_date(date_str: str) -> str:
-    dt = datetime.strptime(date_str, "%d-%m-%Y") # zamiana formatu DD-MM-YYYY na datetime
-    return dt.strftime("%d-%b-%Y")  # zamiana datetime na format IMAP 'DD-Mon-YYYY'
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

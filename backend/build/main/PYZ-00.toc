@@ -401,9 +401,9 @@
   ('datetime',
    'C:\\Users\\User\\anaconda3\\envs\\neuromail\\lib\\datetime.py',
    'PYMODULE'),
-  ('db_fun',
+  ('db_functions',
    'C:\\Users\\User\\OneDrive - Inżynieria dla Domu\\Oskar_G\\a. '
-   'Programowanie\\AgentyAI\\Neuramail\\backend\\db_fun.py',
+   'Programowanie\\AgentyAI\\Neuramail\\backend\\db_functions.py',
    'PYMODULE'),
   ('db_models',
    'C:\\Users\\User\\OneDrive - Inżynieria dla Domu\\Oskar_G\\a. '
@@ -872,9 +872,9 @@
   ('lzma',
    'C:\\Users\\User\\anaconda3\\envs\\neuromail\\lib\\lzma.py',
    'PYMODULE'),
-  ('mailbox_fun',
+  ('mailbox_functions',
    'C:\\Users\\User\\OneDrive - Inżynieria dla Domu\\Oskar_G\\a. '
-   'Programowanie\\AgentyAI\\Neuramail\\backend\\mailbox_fun.py',
+   'Programowanie\\AgentyAI\\Neuramail\\backend\\mailbox_functions.py',
    'PYMODULE'),
   ('mimetypes',
    'C:\\Users\\User\\anaconda3\\envs\\neuromail\\lib\\mimetypes.py',

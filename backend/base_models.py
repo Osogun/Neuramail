@@ -1,35 +1,37 @@
-from pydantic import BaseModel
+from pydantic import BaseModel # BaseModel to klasa bazowa dla modeli Pydantic, która zapewnia walidację danych i serializację do JSON podczas komunikacji z API
 
-class Inbox(BaseModel):
+class Mailbox(BaseModel):
     name: str
+    uidvalidity: int = None  # Unikalny identyfikator skrzynki pocztowej, który jest używany do sprawdzania, czy skrzynka została zmodyfikowana
     unread_count: int = 0
     total_count: int = 0
-    uidvalidity: int = None  # UIDVALIDITY for the mailbox, used to check if the mailbox has changed
-
+    uids_list: list[int] = []  # Lista unikalnych identyfikatorów wiadomości w obrębie skrzynki pocztowej, razem z uidvalidity uid tworzy unikalny identyfikator wiadomości
+    
 class Attachment(BaseModel):
     filename: str
     content: str  # base64 string
+    size: int
 
 class Email(BaseModel):
-    uid: int = None  # Unique identifier for the email
+    uid: int = None  # Unikalny identyfikator wiadomości w obrębie skrzynki pocztowej, razem z uidvalidity tworzy unikalny identyfikator wiadomości
     subject: str
     sender: str
     sender_name: str = None
     date: str = None
-    body: str
+    content: str
     body_type: str = "html"
     attachments: list[Attachment] = []
+    mailbox: str
+    flags: list[str] = [] 
 
-class GetEmail(BaseModel):
-    uid: int
+class GetEmails(BaseModel):
+    uid_list: list[int]
     mailbox: str
 
 class SendEmail(BaseModel):
     subject: str
     mail_to: str
-    from_mail: str
-    from_mail_name: str = None
-    body: str
+    content: str
     body_type: str = 'html'
     attachments: list[Attachment] = []
         

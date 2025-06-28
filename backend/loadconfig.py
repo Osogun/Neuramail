@@ -6,13 +6,17 @@ def _load_config() -> dict:
     """
     Wczytuje plik konfiguracyjny z danymi logowania.
     """
-
+    # Sprawdzenie, czy aplikacja jest uruchomiona jako skompilowany plik .exe (np. z PyInstaller) czy jako skrypt Pythona.
+    """
+    gattr(sys, "frozen", False) sprawdza, czy aplikacja jest uruchomiona jako skompilowany plik .exe (np. z PyInstaller),
+    a jeśli nie, to zwraca False. Jeżeli aplikacja jest uruchomiona jako skrypt Pythona, to sys.frozen będzie False. W przeciwnym razie będzie True.
+    - sys.executable zwraca ścieżkę do pliku wykonywalnego Pythona, który jest aktualnie uruchomiony (skrypt lub skompilowany plik .exe),
+    - Path(sys.executable) tworzy obiekt Path z tej ścieżki,
+    - .resolve() przekształca tę ścieżkę do pełnej, absolutnej ścieżki,
+    - .parent pobiera folder, w którym ten plik wykonywalny się znajduje,
+    """
     if getattr(sys, "frozen", False):
-        # Jeśli aplikacja jest uruchomiona jako skompilowany plik .exe
         config_path = Path(sys.executable).resolve().parent / "config.json"
-        # - sys.executable wskazuje na ścieżkę do pliku wykonywalnego (.exe) po kompilacji,
-        # - .resolve().parent pobiera folder, w którym ten plik .exe się znajduje,
-        # - / "config.json" dodaje nazwę pliku konfiguracyjnego do tej ścieżki.
     else:
         # Jeśli aplikacja jest uruchomiona jako skrypt Pythona
         config_path = Path(__file__).resolve().parent / "dist/config.json"
