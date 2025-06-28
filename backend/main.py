@@ -32,6 +32,19 @@ async def lifespan(app: FastAPI):
     '''
     ### Kod wykonywany przy otwarciu zasobu - uruchomienia FastAPI
     print("BACKEND: Start backendu")
+    
+    
+    # Zrób test diagnostyczny
+    db_path = Path("./dist/mailapp.db")
+    try:
+        db_path.parent.mkdir(exist_ok=True)  # Upewnij się, że folder istnieje
+        with open(db_path, "a"):
+            pass
+        print("Plik bazy danych dostępny/zapisywalny.")
+    except Exception as e:
+        print(f"BŁĄD PLIKU BAZY: {e}")
+    
+    
     # Inicjalizacja bazy danych, ta funkcja tworzy wszystkie tabele w bazie danych na podstawie zdefiniowanych modeli w Base
     # Jeśli tabele już istnieją, nie zostaną ponownie utworzone.
     Base.metadata.create_all(bind=engine)
