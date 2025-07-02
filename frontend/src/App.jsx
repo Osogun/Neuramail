@@ -57,7 +57,7 @@ function App() {
         const response = await fetch(`${API_URL}/metadata`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mailbox: activeFolder }),
+          body: JSON.stringify({ mailbox_name: activeFolder }),
         });
         if (!response.ok) throw new Error(`Network response was not ok (status: ${response.status})`);
         const data = await response.json();
@@ -103,7 +103,7 @@ function App() {
         return <MailDetail mail={selectedMail} onBack={handleBackToList} />;
       case 'list':
       default:
-        return <MailList mails={mails} loading={loading} onMailSelect={handleSelectMail} activeFolder={activeFolder} />;
+        return <MailList mails={mails} loading={loading} onMailSelect={handleSelectMail} mailbox_name={activeFolder} />;
     }
   };
 
