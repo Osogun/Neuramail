@@ -85,41 +85,6 @@ async def root():
     Endpoint informujący, że backend odpalił i działa poprawnie.
     """
     return {"status": "ok"}
-
-@app.post("/api/test")
-async def send_pdf():
-    try:
-        # Wczytaj plik PDF z dysku
-        file_path = Path("test.pdf")
-        if not file_path.exists():
-            raise HTTPException(status_code=404, detail="Plik test.pdf nie istnieje.")
-
-        with open(file_path, "rb") as f:
-            content = f.read()
-
-        # Zakoduj do base64
-        encoded = base64.b64encode(content).decode("utf-8")
-
-        # Stwórz obiekt Email (dostosuj do swojego modelu)
-        email = Email(
-            subject="Test Email",
-            from_name="Test",
-            from_mail="oskargum@gmail.com",
-            to_name="Test",
-            to_mail="oskargum@gmail.com",
-            date="",
-            body="This is a test email with a PDF attachment.",
-            body_type="text",
-            attachments=[{"filename": "test.pdf", "content": encoded}]
-        )
-
-        send_email(email)  # zakładam że ta funkcja rzuca wyjątki HTTPException jeśli coś pójdzie nie tak
-        return {"status": "ok"}
-
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
         
 @app.get("/api/inboxes")
 def get_mailboxes_from_db():

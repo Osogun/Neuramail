@@ -27,13 +27,15 @@ class DBModelParser:
         """
         Parse email to DBEmail.
         """     
+        soup = BeautifulSoup(email.content, 'html.parser') # Parser HTML z treści wiadomości e-mail do tekstu
+        plain_text = soup.get_text(separator=" ", strip=True) # Separator rozdziela tekst z różnych elementów HTML, a strip=True usuwa nadmiarowe spacje na początku i końcu każdego tagu
         return DBEmail(
             uid=email.uid,
             subject=email.subject,
             sender=email.sender,
             sender_name=email.sender_name,
             date=email.date,
-            content_preview=email.content[:25],
+            content_preview=plain_text[:150],
             mailbox_name=mailbox.name,
             mailbox_uidvalidity=mailbox.uidvalidity,
             body_type=email.body_type)
