@@ -28,6 +28,8 @@ Aplikacja klienta pocztowego z agentem AI.
 *Na dysku Google znajduje się hasło do pcozty w pliku HASLO_DO_POCZTY.txt*
 
 ## Technologia
-1. Backend zbudowany w FastAPI
+1. Aplikacja zbudowana w Electron.js
 2. Frontend zbudowany w React + Tailwind
-3. Baza danych zbudowana w SQLite
+3. Backend zbudowany w FastAPI
+4. Baza danych zbudowana w SQLite
+5. Model LLM GPT-4o / Llama 4
