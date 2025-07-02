@@ -9,6 +9,7 @@ Aplikacja klienta pocztowego z agentem AI.
 3. Hasło do poczty GMAIL musi być hasłem aplikacji - [link](https://myaccount.google.com/security) -> Weryfikacja dwuetapowa.
 4. Zmiana pola `sync_on_startup` na `false` wyłaczy synchronizację bazy danych z skrzynką pocztową (można przestawiać w razie potrzeby w trybie deweloperskim).
 5. Przejdź do /backend i zbuduj aplikację komendą `pyinstaller --onefile --name main main.py`
+** Na dysku Google znajduje się poprawnie skonfigurowany plik config.json**
 
 ## Konfiguracja frontendu
 
