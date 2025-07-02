@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine # SQLAlchemy do połączenia z bazą danych
 from sqlalchemy.orm import sessionmaker, declarative_base # SQLAlchemy do tworzenia sesji oraz danych w stylu ORM (klasa-tabela)
-DATABASE_URL = "sqlite:///./dist/mailapp.db"
+DATABASE_URL = "sqlite:///./mailapp.db"
 
 # Silnik połączenia do bazy danych SQLite, z argumentem do obsługi wielu wątków
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}) 

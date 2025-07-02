@@ -37,12 +37,12 @@ class SendEmail(BaseModel):
     attachments: list[Attachment] = []
         
 class EmailQuery(BaseModel):
-    mailbox_name: str = "INBOX"  # Name of the mailbox to filter emails
-    sender: str = None #sender email
-    sender_name: str = None  # Sender name
-    date: str = None  # Date of email
-    subject: str = None  #Subject of email
-    keyword: str = None #Keyword in subject or in body of email
-    since: str = None # Date in YYYY-MM-DD format to filter emails since this date, ex. "2023-01-01"
-    before: str = None  # Date in YYYY-MM-DD format to filter emails before this, ex. "2023-01-31"
+    mailbox_name: str = "INBOX"  # Skrzynka pocztowa do wyszukiwania wiadomości, domyślnie "INBOX"
+    sender: str = None # Adres e-mail nadawcy do wyszukiwania
+    sender_name: str = None  # Nazwa nadawcy do wyszukiwania
+    subject: str = None  # Temat wiadomości do wyszukiwania
+    keyword: str = None # Słowo kluczowe do wyszukiwania w temacie lub treści wiadomości
+    date: str = None # Data w formacie YYYY-MM-DD, do filtrowania wiadomości po dacie, ex. "2023-01-01"
+    since: str = None # Data w formacie YYYY-MM-DD, do filtrowania wiadomości od tej daty, ex. "2023-01-31"
+    before: str = None  # Data w formacie YYYY-MM-DD, do filtrowania wiadomości przed tą datą, ex. "2023-01-31"
 

@@ -1,13 +1,13 @@
 import uvicorn # Pakiet do uruchamiania aplikacji FastAPI
 import threading # Pakiet do obsługi wątków
 from pathlib import Path # Pakiet do obsługi ścieżek plików
-from datetime import datetime # Pakiet do obsługi dat i czasu
+from datetime import datetime, timedelta # Pakiet do obsługi dat i czasu
 import base64 # Pakiet do kodowania i dekodowania base64
-from fastapi import FastAPI, HTTPException # Pakiety FastAPI do tworzenia API
+from fastapi import FastAPI, HTTPException, Request # Pakiety FastAPI do tworzenia API
 from fastapi.middleware.cors import CORSMiddleware # Middleware do obsługi CORS
 from contextlib import asynccontextmanager # Pakiet do zarządzania kontekstem asynchronicznym
 from sqlalchemy import or_, and_ # Funkcje logiczne do tworzenia zapytań SQLAlchemy
-
+import logging # Pakiet do logowania 
 
 from base_models import * # Import modeli Pydantic, które definiują struktury danych dla API
 from database import * # Import modułów do obsługi bazy danych, w tym silnika, sesji i bazowej klasy modeli
@@ -71,7 +71,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    body = await request.body()
+    print(f"Zadanie HTTP: {request.method} {request.url.path} BODY: {body}")
+    response = await call_next(request)
+    return response
+
 ### Endpointy API
+@app.get("/root")
+async def root():
+    """
+    Endpoint informujący, że backend odpalił i działa poprawnie.
+    """
+    return {"status": "ok"}
+
 @app.post("/api/test")
 async def send_pdf():
     try:
@@ -146,16 +160,31 @@ def get_metadata_from_db(query: EmailQuery):
                     DBEmail.content_preview.contains(query.keyword)
                 )
             )
-        if query.since:
+        if query.date:
+            try:
+                date_dt = datetime.strptime(query.date, "%Y-%m-%d")
+                # Filtrowanie tylko po konkretnym dniu (od początku dnia do końca dnia)
+                date_end = date_dt + timedelta(days=1)
+                db_query = db_query.filter(
+                    and_(
+                        DBEmail.date >= date_dt,
+                        DBEmail.date < date_end
+                    )
+                )
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'date'")
+        if query.since and not query.date and not query.before:
             try:
                 since_dt = datetime.strptime(query.since, "%Y-%m-%d")
-                db_query = db_query.filter(DBEmail.date >= since_dt.isoformat())
+                db_query = db_query.filter(DBEmail.date > since_dt)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'since'")
-        if query.before:
+        if query.before and not query.date and not query.since:
             try:
                 before_dt = datetime.strptime(query.before, "%Y-%m-%d")
-                db_query = db_query.filter(DBEmail.date <= before_dt.isoformat())
+                # Dodajemy jeden dzień i porównujemy z <, aby uwzględnić cały dzień "before"
+                before_dt_end = before_dt + timedelta(days=1)
+                db_query = db_query.filter(DBEmail.date < before_dt_end)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'before'")
 

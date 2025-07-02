@@ -26,9 +26,7 @@ class DBModelParser:
     def parse_email(mailbox: Mailbox, email: Email):
         """
         Parse email to DBEmail.
-        """
-        print(email.date)
-        
+        """     
         return DBEmail(
             uid=email.uid,
             subject=email.subject,

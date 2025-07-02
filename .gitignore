@@ -5,3 +5,5 @@ __pycache__/
 *.pyc
 app.db
 /backend/venv
+/mailapp.db
+/backend/mailapp.db
