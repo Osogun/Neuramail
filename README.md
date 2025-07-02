@@ -20,7 +20,7 @@ Aplikacja klienta pocztowego z agentem AI.
 2. Gdy aplikacja jest uruchomiona endpointy API można testować pod adresem: http://localhost:8000/docs
 
 ## Różne
-Dysk z dokumentami dla projektu: [Dysk Google](https://drive.google.com/drive/folders/1joA6oAuo0ZnhBmkR9xbgm5WahEPIE2Fn?fbclid=IwY2xjawLJ2JRleHRuA2FlbQIxMABicmlkETBialVvYmJBWENvdk9Galh4AR67-hZQzLzESMGP_ghe2DWgVbVzPOGtclciwaooPDQVof4HVY2lMX7kfOOUBg_aem_KY6acSCggMjWqA-XpQGxTQ)
+1. Dysk z dokumentami dla projektu: [Dysk Google](https://drive.google.com/drive/folders/1joA6oAuo0ZnhBmkR9xbgm5WahEPIE2Fn?fbclid=IwY2xjawLJ2JRleHRuA2FlbQIxMABicmlkETBialVvYmJBWENvdk9Galh4AR67-hZQzLzESMGP_ghe2DWgVbVzPOGtclciwaooPDQVof4HVY2lMX7kfOOUBg_aem_KY6acSCggMjWqA-XpQGxTQ)
 
-Mail pomocniczy do testowania: neuramail2025@gmail.com
+2. Mail pomocniczy do testowania: neuramail2025@gmail.com
 
