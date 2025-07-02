@@ -9,7 +9,8 @@ Aplikacja klienta pocztowego z agentem AI.
 3. Hasło do poczty GMAIL musi być hasłem aplikacji - [link](https://myaccount.google.com/security) -> Weryfikacja dwuetapowa.
 4. Zmiana pola `sync_on_startup` na `false` wyłaczy synchronizację bazy danych z skrzynką pocztową (można przestawiać w razie potrzeby w trybie deweloperskim).
 5. Przejdź do /backend i zbuduj aplikację komendą `pyinstaller --onefile --name main main.py`
-** Na dysku Google znajduje się poprawnie skonfigurowany plik config.json**
+
+**Na dysku Google znajduje się poprawnie skonfigurowany plik config.json**
 
 ## Konfiguracja frontendu
 
@@ -23,5 +24,5 @@ Aplikacja klienta pocztowego z agentem AI.
 ## Różne
 1. Dysk z dokumentami dla projektu: [Dysk Google](https://drive.google.com/drive/folders/1joA6oAuo0ZnhBmkR9xbgm5WahEPIE2Fn?fbclid=IwY2xjawLJ2JRleHRuA2FlbQIxMABicmlkETBialVvYmJBWENvdk9Galh4AR67-hZQzLzESMGP_ghe2DWgVbVzPOGtclciwaooPDQVof4HVY2lMX7kfOOUBg_aem_KY6acSCggMjWqA-XpQGxTQ)
 2. Mail pomocniczy do testowania: neuramail2025@gmail.com
-3. Na dysku Google znajdziesz hasło do pcozty w pliku HASLO_DO_POCZTY.txt oraz poprawnie sformatowanny plik backendowy config.json
+**Na dysku Google znajdziesz hasło do pcozty w pliku HASLO_DO_POCZTY.txt**
 
