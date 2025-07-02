@@ -29,6 +29,10 @@ class GetEmails(BaseModel):
     uid_list: list[int]
     mailbox: str
 
+class DeleteEmails(BaseModel):
+    uid: list[int]
+    mailbox: str
+
 class SendEmail(BaseModel):
     subject: str
     mail_to: str

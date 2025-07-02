@@ -13,7 +13,7 @@ from base_models import * # Import modeli Pydantic, które definiują struktury 
 from database import * # Import modułów do obsługi bazy danych, w tym silnika, sesji i bazowej klasy modeli
 from db_models import * # Import modeli bazy danych, które są mapowane na tabele w bazie danych
 
-from mailbox_functions import send_email, fetch_emails, handle_opeation_on_imap, fetch_mailboxes
+from mailbox_functions import send_email, fetch_emails, handle_opeation_on_imap, delete_emails
 from db_functions import background_sync
 
 
@@ -203,8 +203,8 @@ def get_metadata_from_db(query: EmailQuery):
 @app.post("/api/get_email")
 def get_email_by_imap(query: GetEmails):
     try:
-        emails = handle_opeation_on_imap(lambda mail: fetch_emails(query, mail))
-        return emails
+        email = handle_opeation_on_imap(lambda mail: fetch_emails(query, mail))
+        return email
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -223,7 +223,36 @@ def send_email_by_smtp(email: SendEmail):
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
-
+@app.post("/api/delete_emails")
+def delete_emails_from_imap(query: DeleteEmails):
+    """
+    Endpoint do usuwania wiadomości z serwera IMAP.
+    """
+    try:
+        handle_opeation_on_imap(lambda mail: delete_emails(query, mail))
+        return {"status": "ok"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
+    finally:
+        sync_mailbox()  # Uruchomienie synchronizacji skrzynki po usunięciu wiadomości
+    
+@app.get("/api/sync")
+def sync_mailbox(): 
+    """
+    Endpoint do ręcznego uruchomienia synchronizacji skrzynki pocztowej.
+    """
+    try:
+        if status_flag:
+            raise HTTPException(status_code=400, detail="Synchronizacja już trwa")
+        threading.Thread(target=background_sync(status_flag), daemon=True).start()
+        return {"status": "ok"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")   
+    
 # build: pyinstaller --onefile --name main main.py
 # CMD znajdz proces: netstat -ano | findstr :8000
 # CMD zabij proces: taskkill /PID {tuWstawPID} /F /T

@@ -161,6 +161,22 @@ def fetch_emails(query: GetEmails, mail=None):
         emails.append(email) 
         
     return emails
+
+def delete_emails(query: DeleteEmails, mail=None):
+    """
+    Funkcja do usuwania e-maili z serwera IMAP.
+    Musi zostać wywowłana w kontekści handle_operation_on_imap jako callback - lambda: delete_emails(query)
+    ponieważ wymaga przkazywanego parametru mail z aktywnym połączeniem IMAP.
+    Przyjmuje obiekt DeleteEmails, który zawiera listę UID-ów wiadomości do usunięcia oraz nazwę skrzynki pocztowej.
+    Zwraca status operacji usuwania wiadomości e-mail.
+    """
+    # Wybieramy folder (skrzynkę pocztową) i ustawiamy ją jako aktywną
+    mail.select_folder(query.mailbox, readonly=False)
+    # Usuwamy wiadomości o podanych UID-ach
+    mail.delete_messages(query.uid)
+    # Zatwierdzamy zmiany na serwerze IMAP
+    mail.expunge()
+    return {"status": "ok"} 
     
 def handle_opeation_on_imap(callback):
     """

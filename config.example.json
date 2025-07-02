@@ -2,5 +2,6 @@
     "host_imap": "imap.gmail.com",
     "host_smtp": "smtp.gmail.com",
     "email": "twoj_email@example.com",
-    "password": "twoje_haslo"
+    "password": "twoje_haslo",
+    "sync_on_startup": true
 }
