@@ -1,4 +1,5 @@
 from pydantic import BaseModel # BaseModel to klasa bazowa dla modeli Pydantic, która zapewnia walidację danych i serializację do JSON podczas komunikacji z API
+from datetime import datetime
 
 class Mailbox(BaseModel):
     name: str
@@ -17,7 +18,7 @@ class Email(BaseModel):
     subject: str
     sender: str
     sender_name: str = None
-    date: str = None
+    date: datetime = None
     content: str
     body_type: str = "html"
     attachments: list[Attachment] = []
@@ -36,7 +37,7 @@ class SendEmail(BaseModel):
     attachments: list[Attachment] = []
         
 class EmailQuery(BaseModel):
-    mailbox: str = "INBOX"  # Default to INBOX
+    mailbox_name: str = "INBOX"  # Name of the mailbox to filter emails
     sender: str = None #sender email
     sender_name: str = None  # Sender name
     date: str = None  # Date of email

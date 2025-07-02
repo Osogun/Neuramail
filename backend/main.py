@@ -19,6 +19,7 @@ from db_functions import background_sync
 
 from loadconfig import _load_config 
 
+status_flag = False # Flaga do sprawdzania statusu synchronizacji
 
 # Asynchroniczny menedżer kontekstu, tj. taka "asynchroniczna werjsa with"
 """
@@ -52,8 +53,8 @@ async def lifespan(app: FastAPI):
     config = _load_config()
     # Sprawdzenie czy synchronizacja ma być uruchomiona przy starcie
     if config.get("sync_on_startup"):
-        threading.Thread(target=background_sync, daemon=True).start()
-        
+        threading.Thread(target=background_sync(status_flag), daemon=True).start()
+  
     ### Kod wykonywany przy zamknięciu zasobu - zamknięcia FastAPI
     yield
     print("BACKEND: Shutdown backendu")
@@ -107,27 +108,31 @@ async def send_pdf():
         raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
         
 @app.get("/api/inboxes")
-def get_mailboxes_by_imap():
+def get_mailboxes_from_db():
     """
-    Endpoint do pobierania listy skrzynek pocztowych z serwera IMAP.
+    Endpoint do pobierania listy skrzynek pocztowych z bazy danych.
     """
     try:
-        inboxes = handle_opeation_on_imap(lambda mail: fetch_mailboxes(mail))
-        return {"inboxes": inboxes}
+        db = SessionLocal()  # Tworzenie sesji do bazy danych
+        db_query = SessionLocal().query(DBMailbox)  # Tworzenie zapytania do bazy danych
+        result = db_query.all()  # Pobranie wszystkich wyników zapytania
+        return {"inboxes": result, "status_flag": status_flag}  # Zwrócenie listy skrzynek pocztowych i statusu synchronizacji
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
+    finally:
+        db.close()
 
 @app.post("/api/metadata")
 def get_metadata_from_db(query: EmailQuery):
     db = SessionLocal()
     try:
-        db_query = db.query(DBEmail)
+        db_query = db.query(DBEmail) # Tworzenie zapytania do bazy danych
 
         # Filtrowanie dynamiczne
-        if query.mailbox:
-            db_query = db_query.filter(DBEmail.mailbox_name == query.mailbox)
+        if query.mailbox_name:
+            db_query = db_query.filter(DBEmail.mailbox_name == query.mailbox_name)
         if query.sender:
             db_query = db_query.filter(DBEmail.sender == query.sender)
         if query.sender_name:
@@ -155,8 +160,14 @@ def get_metadata_from_db(query: EmailQuery):
                 raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'before'")
 
         # Wykonanie zapytania
-        result = db_query.all()
-        return [email.__dict__ for email in result]
+        result = db_query.all() # Pobranie wszystkich wyników zapytania
+        if not result:
+            raise HTTPException(status_code=404, detail="Nie znaleziono żadnych wiadomości spełniających kryteria")
+        return {"emails": [email.__dict__ for email in result], "status_flag": status_flag}  # Zwrócenie listy wiadomości i statusu synchronizacji
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd serwera: {str(e)}")
     finally:
         db.close()
 

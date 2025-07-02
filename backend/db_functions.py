@@ -27,6 +27,8 @@ class DBModelParser:
         """
         Parse email to DBEmail.
         """
+        print(email.date)
+        
         return DBEmail(
             uid=email.uid,
             subject=email.subject,
@@ -119,9 +121,11 @@ def sync_mailbox_metadata():
     db.close()
 
 # Uruchamiamy sync jako jednorazowy task w tle
-def background_sync():
+def background_sync(status_flag):
     try:
+        status_flag = True  # Ustawienie flagi statusu na True, aby wskazać, że synchronizacja jest w toku
         sync_mailbox_metadata()
         print("[SYNC] Synchronizacja zakończona")
+        status_flag = False  # Ustawienie flagi statusu na False, aby wskazać, że synchronizacja zakończona
     except Exception as e:
         print(f"[SYNC] Błąd podczas synchronizacji: {e}")

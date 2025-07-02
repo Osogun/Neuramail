@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, PrimaryKeyConstraint, UniqueConstraint, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, PrimaryKeyConstraint, UniqueConstraint, ForeignKey, Index, DateTime
 from database import Base
 
 class DBMailbox(Base):
@@ -14,18 +14,17 @@ class DBEmail(Base):
     subject = Column(String)
     sender = Column(String)
     sender_name = Column(String)
-    date = Column(String)
+    date = Column(DateTime)
     content_preview = Column(String)
-    mailbox_name = Column(String)
+    mailbox_name = Column(String, ForeignKey("mailboxes.name"))  # Nazwa skrzynki pocztowej, do której należy wiadomość
     mailbox_uidvalidity = Column(Integer, ForeignKey("mailboxes.uidvalidity"))
     body_type = Column(String)
-    flags = Column(String)
 
     __table_args__ = (
         # Unikalny klucz główny składający się z uid i mailbox_uidvalidity
         PrimaryKeyConstraint('uid', 'mailbox_uidvalidity'),
         # Indeks przyspieszający wyszukiwanie wiadomości po uid i mailbox_uidvalidity
-        Index("ix_mailbox_mail_uid", "mailbox_uidvalidity", "uid"),
+        Index("ix_mailbox_mail_uid", "mailbox_name", "uid"),
         # Przyspieszona filtracja po nadawcy w ramach skrzynki
         Index("ix_mailbox_sender", "mailbox_name", "sender"),
         # Przyspieszona filtracja po nazwie nadawcy
