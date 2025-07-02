@@ -2,7 +2,7 @@
 Aplikacja klienta pocztowego z agentem AI.
 
 ## Konfiguracja backendu
-`Punkty 1-4 wykonujemy tylko przy pierwszej konfiguracji projektu. Punkt 5 przy każdej nowej łatce!`
+**Punkty 1-4 wykonujemy tylko przy pierwszej konfiguracji projektu. Punkt 5 przy każdej nowej łatce!**
 
 1. Skopiuj plik `config.example.json` do `backend/dist/config.json`.
 2. Uzupełnij w nim dane logowania do serwera IMAP (`host_imap`, `email`, `hasło`, `host_smtp`).
