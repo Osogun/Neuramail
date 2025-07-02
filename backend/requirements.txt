@@ -4,3 +4,5 @@ imapclient
 pyzmail36
 sqlalchemy
 aiosqlite
+bs4
+python-dateutil

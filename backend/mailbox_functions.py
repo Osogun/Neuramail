@@ -7,7 +7,7 @@ from fastapi import HTTPException # HTTPException to wyjątek FastAPI, który je
 from email.mime.multipart import MIMEMultipart # MIMEMultipart to klasa z biblioteki email, która umożliwia tworzenie wiadomości e-mail w formacie MIME, która może zawierać wiele części (np. tekst, HTML, załączniki)
 from email.mime.text import MIMEText # MIMEText to klasa z biblioteki email, która umożliwia tworzenie części wiadomości e-mail w formacie tekstowym (np. HTML lub zwykły tekst)
 from email.mime.application import MIMEApplication # MIMEApplication to klasa z biblioteki email, która umożliwia tworzenie części wiadomości e-mail dla załączników, które nie są tekstem (np. pliki PDF, obrazy itp.)
-
+from dateutil import parser # Parser do przetwarzania dat w formacie tekstowym na obiekty datetime
 from base_models import *
 from loadconfig import _load_config
 
@@ -67,7 +67,12 @@ def fetch_email(mail, mailbox, uid):
     # Pobieramy temat wiadomości, nadawcę i datę
     subject = message.get_subject()
     from_ = message.get_addresses("from") # Krotka (nazwa nadawcy, adres e-mail)
-    date = message.get_decoded_header("date")
+    raw_date = message.get_decoded_header("date")
+    try:
+        date = parser.parse(raw_date)
+    except Exception as e:
+        print(f"[WARN] Nie udało się sparsować daty: {raw_date} — {e}")
+        date = None  # albo datetime.now() jako fallback, zależy co wolisz
     # Parser wiadomości MIME zawiera różne części wiadomości, takie jak tekst, HTML i załączniki
     # W pierwszej kolejności sprawdzamy, czy wiadomość ma część HTML lub tekstową i pobieramy jej treść
     if message.html_part:
