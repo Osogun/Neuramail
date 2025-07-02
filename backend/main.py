@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
     
     
     # Zrób test diagnostyczny
-    db_path = Path("./dist/mailapp.db")
+    db_path = Path("./mailapp.db")
     try:
         db_path.parent.mkdir(exist_ok=True)  # Upewnij się, że folder istnieje
         with open(db_path, "a"):
