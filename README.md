@@ -12,7 +12,7 @@ Aplikacja klienta pocztowego z agentem AI.
 
 ## Konfiguracja frontendu
 
-1. Przejdź do /frontend i zbuduj aplikację komena `npm run build`
+1. Przejdź do /frontend i zbuduj aplikację komendą `npm run build`
 
 ## Uruchomienie aplikacji
 
