@@ -1,15 +1,28 @@
 /* src/components/MailList.css */
+
 .mail-list-card {
-  /* USUNIĘTO: padding: 24px; */
   display: flex;
   flex-direction: column;
+  /* DODAJ TĘ LINIĘ: */
+  flex-grow: 1; 
+}
+
+.mail-list-card {
+  display: flex;
+  flex-direction: column;
+  /* NOWOŚĆ: Ta linia sprawi, że karta rozciągnie się, aby wypełnić całą dostępną wysokość. */
+  flex-grow: 1;
+  min-height: 400px; /* Dodajemy minimalną wysokość dla estetyki */
 }
 
 .mail-list-card .mail-list-content {
   position: relative;
   z-index: 2;
-  /* NOWOŚĆ: Przeniesiono padding tutaj, aby poprawnie działał wewnątrz karty. */
-  padding: 24px; 
+  padding: 24px;
+  /* NOWOŚĆ: Sprawiamy, że ten kontener również rośnie i staje się flexboxem */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .mail-list-heading {
@@ -17,6 +30,7 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 24px;
+  flex-shrink: 0; /* Zapobiega kurczeniu się nagłówka */
 }
 
 .mails-grid {
@@ -25,8 +39,12 @@
 }
 
 .status-box {
-  padding: 40px;
-  text-align: center;
   color: var(--text-tertiary);
   font-weight: 500;
+  
+  /* NOWOŚĆ: Idealne centrowanie w pionie i poziomie za pomocą flexbox */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1; /* Sprawia, że ten box wypełni całą pozostałą przestrzeń */
 }

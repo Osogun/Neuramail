@@ -1,26 +1,24 @@
-/* src/App.css */
+/* src/App.css - Wersja Ostateczna */
+
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  padding-top: 64px;
 }
 
 .app-header {
   height: 64px;
   flex-shrink: 0;
   z-index: 10;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-bottom: var(--glass-border);
-  box-shadow: var(--glass-shadow);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .app-header-content {
@@ -34,83 +32,23 @@
 
 .app-title {
   font-size: 1.5em;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 700;
   margin: 0;
 }
 
 .app-content {
-  width: 100%;
-  padding: 0;
+  display: flex;
+  flex-grow: 1;
+  margin-top: 64px; 
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* KLUCZOWA CZĘŚĆ: Definiujemy, jak ma się zachowywać główny obszar treści */
 .main-content {
-  margin-left: calc(260px + 24px);
+  flex-grow: 1;
+  margin-left: 260px; /* Odsunięcie na szerokość sidebara */
   padding: 24px;
-  width: auto;
-  /* ZMIANA: Usunięto animację, która powodowała problem */
-  /* animation: fadeInUp 0.5s ease-in-out forwards; */
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-radius: var(--glass-radius);
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--glass-glow);
-  position: relative;
-  overflow: hidden;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--glass-highlight-sharp),
-    transparent
-  );
-}
-
-.glass-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(
-    180deg,
-    var(--glass-highlight-sharp),
-    transparent
-  );
-}
-
-.sidebar {
-  width: 260px;
-  position: fixed;
-  top: 88px;
-  left: 24px;
-  height: calc(100vh - 88px - 24px);
-  /* ZMIANA: Usunięto animację, która powodowała problem */
-  /* animation: fadeInUp 0.5s ease-in-out 0.1s forwards; */
-  /* opacity: 0; */
+  
+  /* To sprawia, że komponent-dziecko (np. MailList lub ComposeMail) się rozciągnie */
+  display: flex;
+  flex-direction: column;
 }

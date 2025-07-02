@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tiptap/react": "^2.23.1",
+    "@tiptap/starter-kit": "^2.23.1",
     "lucide-react": "^0.524.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

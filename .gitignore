@@ -4,3 +4,4 @@ backend/dist/main.exe
 __pycache__/
 *.pyc
 app.db
+/backend/venv
