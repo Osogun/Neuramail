@@ -3,13 +3,13 @@ import React from 'react';
 import MailItem from './MailItem';
 import './MailList.css';
 
-function MailList({ mails, loading, onMailSelect, activeFolder }) {
+function MailList({ mails, loading, onMailSelect, mailbox_name }) {
 
   const getMailListHeading = () => {
     const folderNames = {
       inbox: 'Odebrane', sent: 'Wysłane', drafts: 'Wersje robocze', trash: 'Kosz'
     };
-    return folderNames[activeFolder] || 'Maile';
+    return folderNames[mailbox_name] || mailbox_name || 'Maile';
   };
 
   return (

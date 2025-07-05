@@ -62,7 +62,7 @@ function App() {
         if (!response.ok) throw new Error(`Network response was not ok (status: ${response.status})`);
         const data = await response.json();
         console.log(data);
-        setMails(data || []);
+        setMails(data.emails || []);
       } catch (error) {
         console.error(`Błąd podczas pobierania maili dla folderu ${activeFolder}:`, error);
         setMails([]);
