@@ -13,15 +13,13 @@
   "dependencies": {
     "@tiptap/react": "^2.23.1",
     "@tiptap/starter-kit": "^2.23.1",
-    "@tailwindcss/vite": "^4.1.11",
-    "@tiptap/react": "^2.23.1",
-    "@tiptap/starter-kit": "^2.23.1",
     "lucide-react": "^0.524.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
@@ -29,6 +27,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "tailwindcss": "^4.1.11",
     "vite": "^7.0.0"
   }
 }
