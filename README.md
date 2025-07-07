@@ -50,8 +50,11 @@ Aplikacja klienta pocztowego z agentem AI.
 2. Zbuduj aplikację - `npm run build`
 
 ### uruchomienie elektrona
-1. `cd ..`
-2. `rm -rf node_modules package-lock.json`
-3. `npm install`
-4. `npm install --save-dev electron`
-5. `npm start`
+1. Zainstaluj nvm - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash`
+2. Zrestartuj basha - `source ~/.bashrc`
+3. Zainstaluj i użyj Node 20.19.1 - `nvm install 20.19.1`, a następnie `nvm use 20.19.1`
+4. Potwierdź wersję - `node -v`
+5. `rm -rf node_modules package-lock.json`
+6. `npm install`
+7. `npm install --save-dev electron`
+8. `npm start`
