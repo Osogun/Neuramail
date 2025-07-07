@@ -33,3 +33,23 @@ Aplikacja klienta pocztowego z agentem AI.
 3. Backend zbudowany w FastAPI
 4. Baza danych zbudowana w SQLite
 5. Model LLM GPT-4o / Llama 4
+
+## Zbudowanie i uruchomienie aplikacji na Linuxie 
+>uwaga, testowane na systemie Debian 12
+
+### budowa backendu
+1. W folderze backend stwórz wirtualne środowisko - `python3 -m venv venv`
+2. Aktywuj wirtualne środowisko - `source venv/bin/activate`
+3. Zainstaluj potrzebne biblioteki - `pip install -r requirements.txt`
+4. Zainstaluj pyinstaller - `pip install pyinstaller`
+5. Zbuduj backend - `pyinstaller --onefile --name main main.py`
+6. Pobierz `config.json` i umieść go w `backend/dist/`
+
+### budowa frontendu
+1. Przejdź do folderu `frontend/` i zainstaluj zależności - `npm i`
+2. Zbuduj aplikację - `npm run build`
+
+### uruchomienie elektrona
+1. Wróć do głównego folderu projektu
+2. Zainstaluj zależności electrona - `npm install`
+3. Uruchom aplikację - `npm start`
