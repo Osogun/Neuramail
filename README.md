@@ -50,6 +50,8 @@ Aplikacja klienta pocztowego z agentem AI.
 2. Zbuduj aplikację - `npm run build`
 
 ### uruchomienie elektrona
-1. Wróć do głównego folderu projektu
-2. Zainstaluj zależności electrona - `npm install`
-3. Uruchom aplikację - `npm start`
+1. `cd ..`
+2. `rm -rf node_modules package-lock.json`
+3. `npm install`
+4. `npm install --save-dev electron`
+5. `npm start`

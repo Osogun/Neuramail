@@ -3,9 +3,12 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "start": "concurrently \"npm:dev:react\" \"npm:dev:electron\"",
+    "start": "npx concurrently \"npm:dev:react\" \"npm:dev:electron\"",
     "dev:react": "NODE_OPTIONS=--openssl-legacy-provider npm run dev --prefix frontend",
-    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev:electron": "npx wait-on http://localhost:5173 && electron .",
     "build": "npm run build --prefix frontend && electron-builder"
-  } 
+  },
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
 }
