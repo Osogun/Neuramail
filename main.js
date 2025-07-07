@@ -1,81 +1,96 @@
+// main.js - Wersja z Poprawnym Uruchamianiem Backendu
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn, exec } = require('child_process');
-const http = require('http');
 
-let mainWindow;
-let backendProcess;
-const exePath = path.join(__dirname, 'backend/dist/main.exe');
+// Używamy wbudowanej funkcji, aby sprawdzić, czy aplikacja jest w trybie deweloperskim
+const isDev = !app.isPackaged;
 
-function waitForBackend(url, maxRetries = 20, delay = 500) {
-  return new Promise((resolve, reject) => {
-    let attempts = 0;
+let backendProcess = null;
 
-    const check = () => {
-      const req = http.get(url, () => resolve());
-      req.on('error', () => {
-        attempts++;
-        if (attempts >= maxRetries) return reject(new Error("Backend nie wstał na czas"));
-        setTimeout(check, delay);
-      });
-    };
-
-    check();
+function createWindow() {
+  const mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
   });
-}
 
-function killBackend() {
-  if (backendProcess) {
-    exec(`taskkill /PID ${backendProcess.pid} /F /T`); //Systemowa komenda do zakończenia procesu backendu i wszystkich jego potomków (/T)
-    // Zwykłe `backendProcess.kill()` może nie działać poprawnie w niektórych przypadkach, więc dla pewności używamy `exec` do wykonania polecenia systemowego
+  mainWindow.loadURL(
+    isDev
+      ? 'http://localhost:5173'
+      : `file://${path.join(__dirname, 'frontend/dist/index.html')}`
+  );
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
   }
 }
 
-function createWindow() {
-  backendProcess = spawn(exePath);
+function startBackend() {
+  // --- POCZĄTEK KLUCZOWEJ ZMIANY ---
+  // Sprawdzamy, na jakim systemie operacyjnym działa aplikacja
+  const isWindows = process.platform === 'win32';
+  const backendExecutable = isWindows ? 'main.exe' : 'main'; // Wybieramy właściwą nazwę pliku
+  
+  // Budujemy poprawną ścieżkę do pliku wykonywalnego
+  const backendPath = isDev
+    ? path.join(__dirname, 'backend', 'dist', backendExecutable)
+    // W wersji produkcyjnej ścieżka jest inna, 'process.resourcesPath' jest kluczowe
+    : path.join(process.resourcesPath, 'backend', backendExecutable);
+  // --- KONIEC KLUCZOWEJ ZMIANY ---
 
-  backendProcess.stdout.on('data', (data) => {
-    console.log(`[BACKEND STDOUT] ${data}`);
-  });
-  // Obsługa standardowego wyjścia backendu, przekierowuje dane z backendu do konsoli
+  console.log(`[Electron] Uruchamianie backendu z: ${backendPath}`);
 
-  backendProcess.stderr.on('data', (data) => {
-    console.error(`[BACKEND ERROR] ${data}`);
-  });
-  // Obsługa standardowego błędu backendu, przekierowuje błędy z backendu do konsoli
+  try {
+    backendProcess = spawn(backendPath, [], { detached: true, stdio: 'ignore' });
+    backendProcess.unref(); // Pozwalamy głównemu procesowi zakończyć się bez czekania na backend
 
-  backendProcess.on('exit', (code) => {
-    console.error(`[BACKEND EXIT] Kod zakończenia: ${code}`);
-  });
-  // Obsługa zdarzenia zakończenia procesu backendu, loguje kod zakończenia
-
-
-  waitForBackend('http://127.0.0.1:8000/root')
-    .then(() => {
-      mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-          nodeIntegration: true,
-          contextIsolation: false,
-        },
-      });
-
-      mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
-    })
-    .catch((err) => {
-      console.error("Bład przy ładowaniu frontendu: ", err);
+    backendProcess.on('error', (err) => {
+      console.error('[Electron] Błąd uruchamiania backendu:', err);
     });
 
+    backendProcess.on('close', (code) => {
+      console.log(`[Electron] Proces backendu zakończony z kodem: ${code}`);
+    });
+
+  } catch (err) {
+    console.error('[Electron] Nie udało się uruchomić procesu backendu:', err);
+  }
 }
 
-// Rejestracja zdarzeń aplikacji
-app.on('ready', createWindow);
+app.whenReady().then(() => {
+  // Uruchom backend tylko w wersji produkcyjnej (spakowanej)
+  if (app.isPackaged) {
+    startBackend();
+  }
+  createWindow();
 
-app.on('before-quit', () => {
-  console.log("Zamykanie aplikacji...");
-  killBackend();
-  mainWindow = null;
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
 });
 
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('will-quit', () => {
+  console.log('[Electron] Zamykanie aplikacji...');
+  if (backendProcess) {
+    console.log('[Electron] Zamykanie procesu backendu...');
+    // Zamykanie procesu w sposób bezpieczny dla różnych systemów
+    if (process.platform === 'win32') {
+      exec(`taskkill /PID ${backendProcess.pid} /F /T`);
+    } else {
+      process.kill(-backendProcess.pid, 'SIGKILL');
+    }
+  }
+});
