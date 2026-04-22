@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SignatureCapture</string>
+    <string name="unsupported_device">urządzenie nieobsługiwane</string>
+    <string name="new_signature">Nowy podpis</string>
+    <string name="save_png">Zapisz obraz</string>
+    <string name="save_csv">Zapisz CSV</string>
+    <string name="saved_png">ZAPISANE PNG</string>
+    <string name="saved_csv">ZAPISANE CSV</string>
+    <string name="nothing_to_save">Brak podpisu</string>
+</resources>
